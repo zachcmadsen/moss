@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <assert.h>
 
 #include "cpu.h"
 
@@ -9,10 +9,7 @@ int main() {
 
     cpu_step(cpu);
 
-    if (cpu_a(cpu) != 0xEC) {
-        printf("failed\n");
-    }
+    assert(cpu_a(cpu) == 0xEC);
 
-    printf("passed\n");
     return 0;
 }
