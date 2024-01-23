@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "cpu.h"
 
@@ -40,11 +41,37 @@ struct cpu *cpu_new() {
     return cpu;
 }
 
+uint16_t cpu_pc(struct cpu *cpu) {
+    return cpu->pc;
+}
+
 uint8_t cpu_a(struct cpu *cpu) {
     return cpu->a;
 }
 
-void cpu_set_ram(struct cpu *cpu, uint16_t addr, uint8_t data) {
+uint8_t cpu_x(struct cpu *cpu) {
+    return cpu->x;
+}
+
+uint8_t cpu_y(struct cpu *cpu) {
+    return cpu->y;
+}
+
+uint8_t cpu_s(struct cpu *cpu) {
+    return cpu->s;
+}
+
+uint8_t cpu_p(struct cpu *cpu) {
+    uint8_t p = 0;
+    memcpy(&p, &cpu->p, sizeof(uint8_t));
+    return p;
+}
+
+uint8_t cpu_read(struct cpu *cpu, uint16_t addr) {
+    return cpu->ram[addr];
+}
+
+void cpu_write(struct cpu *cpu, uint16_t addr, uint8_t data) {
     cpu->ram[addr] = data;
 }
 
@@ -64,7 +91,10 @@ void cpu_step(struct cpu *cpu) {
 }
 
 void cpu_free(struct cpu *cpu) {
+    if (!cpu) {
+        return;
+    }
+
     free(cpu->ram);
     free(cpu);
-    cpu = nullptr;
 }

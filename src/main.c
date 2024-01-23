@@ -4,8 +4,8 @@
 
 int main() {
     struct cpu *cpu = cpu_new();
-    cpu_set_ram(cpu, 0x0000, 0xA9);
-    cpu_set_ram(cpu, 0x0001, 0xEC);
+    cpu_write(cpu, 0x0000, 0xA9);
+    cpu_write(cpu, 0x0001, 0xEC);
 
     cpu_step(cpu);
 
