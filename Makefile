@@ -1,6 +1,8 @@
 CC=clang
 CFLAGS=-std=c2x -Wall -Wextra -Iinclude
 
+OUTDIR = build
+
 HEADERS = include/cpu.h
 OBJECTS = build/cpu.o build/main.o
 
@@ -8,15 +10,15 @@ OBJECTS = build/cpu.o build/main.o
 #   - c flag means only preprocess, compile, and assemble (don't link)
 #   - $@ refers to the target (the left side of :)
 #   - $< refers to the first dependency (the right side of :)
-build/%.o: src/%.c $(HEADERS)
+$(OUTDIR)/%.o: src/%.c $(HEADERS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-main: $(OBJECTS)
-	$(CC) -o $@ $^
+build: $(OBJECTS)
+	$(CC) -o $(OUTDIR)/main $^
 
-run: main
-	./main
+run: build
+	./$(OUTDIR)/main
 
 clean:
-	-rm -rf build/*
+	-rm -rf $(OUTDIR)/*
 	-rm -f main
