@@ -45,26 +45,50 @@ uint16_t cpu_pc(struct cpu *cpu) {
     return cpu->pc;
 }
 
+void cpu_set_pc(struct cpu *cpu, uint16_t pc) {
+    cpu->pc = pc;
+}
+
 uint8_t cpu_a(struct cpu *cpu) {
     return cpu->a;
+}
+
+void cpu_set_a(struct cpu *cpu, uint8_t a) {
+    cpu->a = a;
 }
 
 uint8_t cpu_x(struct cpu *cpu) {
     return cpu->x;
 }
 
+void cpu_set_x(struct cpu *cpu, uint8_t x) {
+    cpu->x = x;
+}
+
 uint8_t cpu_y(struct cpu *cpu) {
     return cpu->y;
+}
+
+void cpu_set_y(struct cpu *cpu, uint8_t y) {
+    cpu->y = y;
 }
 
 uint8_t cpu_s(struct cpu *cpu) {
     return cpu->s;
 }
 
+void cpu_set_s(struct cpu *cpu, uint8_t s) {
+    cpu->s = s;
+}
+
 uint8_t cpu_p(struct cpu *cpu) {
     uint8_t p = 0;
     memcpy(&p, &cpu->p, sizeof(struct status));
     return p;
+}
+
+void cpu_set_p(struct cpu *cpu, uint8_t p) {
+    memcpy(&cpu->p, &p, sizeof(struct status));
 }
 
 uint8_t cpu_read(struct cpu *cpu, uint16_t addr) {
