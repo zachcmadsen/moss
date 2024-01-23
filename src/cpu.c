@@ -83,12 +83,12 @@ void cpu_set_s(struct cpu *cpu, uint8_t s) {
 
 uint8_t cpu_p(struct cpu *cpu) {
     uint8_t p = 0;
-    memcpy(&p, &cpu->p, sizeof(struct status));
+    memcpy_s(&p, sizeof(p), &cpu->p, sizeof(cpu->p));
     return p;
 }
 
 void cpu_set_p(struct cpu *cpu, uint8_t p) {
-    memcpy(&cpu->p, &p, sizeof(struct status));
+    memcpy_s(&cpu->p, sizeof(cpu->p), &p, sizeof(p));
 }
 
 uint8_t cpu_read(struct cpu *cpu, uint16_t addr) {
