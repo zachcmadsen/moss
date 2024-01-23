@@ -63,7 +63,7 @@ uint8_t cpu_s(struct cpu *cpu) {
 
 uint8_t cpu_p(struct cpu *cpu) {
     uint8_t p = 0;
-    memcpy(&p, &cpu->p, sizeof(uint8_t));
+    memcpy(&p, &cpu->p, sizeof(struct status));
     return p;
 }
 
