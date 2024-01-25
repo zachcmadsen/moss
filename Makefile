@@ -22,6 +22,9 @@ run: build
 tidy: build
 	clang-tidy --extra-arg=--std=c2x -header-filter=include/* -checks=bugprone-*,clang-analyzer-*,clang-diagnostic-*,misc-*,modernize-*,readability-*,-readability-identifier-length,-readability-implicit-bool-conversion,-readability-magic-numbers src/*.c
 
+test: build
+	cargo t --manifest-path sys/Cargo.toml --test it
+
 clean:
 	-rm -rf $(OUTDIR)/*
 	-rm -f main
