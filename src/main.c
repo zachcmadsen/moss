@@ -11,5 +11,7 @@ int main() {
 
     assert(cpu_a(cpu) == 0xEC);
 
+    cpu_free(cpu);
+
     return 0;
 }

@@ -5,6 +5,8 @@
 
 #include "cpu.h"
 
+enum { ADDR_SPACE_SIZE = 65536 };
+
 struct status {
     bool c : 1;
     bool z : 1;
@@ -18,26 +20,23 @@ struct status {
 static_assert(sizeof(struct status) == 1);
 
 struct cpu {
-    uint8_t *ram;
-
     uint16_t pc;
     uint8_t a;
     uint8_t x;
     uint8_t y;
     uint8_t s;
     struct status p;
+
+    uint8_t ram[ADDR_SPACE_SIZE];
 };
 
 struct cpu *cpu_new() {
-    uint8_t *ram = calloc(0x10000, sizeof(uint8_t));
-    if (!ram) {
-        exit(EXIT_FAILURE);
-    }
     struct cpu *cpu = calloc(1, sizeof(struct cpu));
-    if (!cpu) {
+    if (cpu == NULL) {
+        printf("calloc failed");
         exit(EXIT_FAILURE);
     }
-    cpu->ram = ram;
+
     return cpu;
 }
 
@@ -115,10 +114,5 @@ void cpu_step(struct cpu *cpu) {
 }
 
 void cpu_free(struct cpu *cpu) {
-    if (!cpu) {
-        return;
-    }
-
-    free(cpu->ram);
     free(cpu);
 }
