@@ -30,6 +30,16 @@ struct cpu {
     uint8_t ram[ADDR_SPACE_SIZE];
 };
 
+uint16_t imm(struct cpu *cpu) {
+    return cpu->pc++;
+}
+
+void lda(struct cpu *cpu, uint16_t addr) {
+    cpu->a = cpu->ram[addr];
+    cpu->p.z = cpu->a == 0;
+    cpu->p.n = (cpu->a & 0x80) != 0;
+}
+
 struct cpu *cpu_new() {
     struct cpu *cpu = calloc(1, sizeof(struct cpu));
     if (cpu == NULL) {
@@ -103,9 +113,7 @@ void cpu_step(struct cpu *cpu) {
 
     switch (opc) {
     case 0xA9:
-        cpu->a = cpu->ram[cpu->pc++];
-        cpu->p.z = cpu->a == 0;
-        cpu->p.n = (cpu->a & 0x80) != 0;
+        lda(cpu, imm(cpu));
         break;
     default:
         printf("unknown opcode: 0x%X\n", opc);
