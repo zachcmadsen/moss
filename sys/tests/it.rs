@@ -67,3 +67,4 @@ fn run(opc: u8) {
 }
 
 processor_test!(opc_a9, 0xA9);
+processor_test!(opc_ad, 0xAD);

@@ -5,6 +5,20 @@
 
 #include "cpu.h"
 
+#define SET_ZN(cpu)                                                            \
+    do {                                                                       \
+        (cpu)->p.z = (cpu)->a == 0;                                            \
+        (cpu)->p.n = ((cpu)->a & 0x80) != 0;                                   \
+    } while (0)
+
+#define ABS(cpu)                                                               \
+    uint16_t addr;                                                             \
+    do {                                                                       \
+        uint8_t low = (cpu)->ram[(cpu)->pc++];                                 \
+        uint8_t high = (cpu)->ram[(cpu)->pc++];                                \
+        addr = low | high << 8;                                                \
+    } while (0)
+
 enum { ADDR_SPACE_SIZE = 65536 };
 
 struct status {
@@ -30,14 +44,15 @@ struct cpu {
     uint8_t ram[ADDR_SPACE_SIZE];
 };
 
-uint16_t imm(struct cpu *cpu) {
-    return cpu->pc++;
+static void lda_abs(struct cpu *cpu) {
+    ABS(cpu);
+    cpu->a = cpu->ram[addr];
+    SET_ZN(cpu);
 }
 
-void lda(struct cpu *cpu, uint16_t addr) {
-    cpu->a = cpu->ram[addr];
-    cpu->p.z = cpu->a == 0;
-    cpu->p.n = (cpu->a & 0x80) != 0;
+static void lda_imm(struct cpu *cpu) {
+    cpu->a = cpu->ram[cpu->pc++];
+    SET_ZN(cpu);
 }
 
 struct cpu *cpu_new() {
@@ -113,7 +128,10 @@ void cpu_step(struct cpu *cpu) {
 
     switch (opc) {
     case 0xA9:
-        lda(cpu, imm(cpu));
+        lda_imm(cpu);
+        break;
+    case 0xAD:
+        lda_abs(cpu);
         break;
     default:
         printf("unknown opcode: 0x%X\n", opc);
