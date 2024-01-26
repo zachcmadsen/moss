@@ -1,5 +1,9 @@
 # moss
 
-I'm writing `moss` to experiment with different dispatch techniques in a 6502
-emulator. There's not much to see yet since I'm still writing the baseline
-version.
+I'm writing `moss` to explore different interpreter approaches (cached 
+interpreter, continuation-passing style, JIT, etc.). I chose the 6502 since
+I've written an interpreter for it before as part of an NES
+[emulator][duNES]. I'm still writing the baseline version, so there isn't
+much to see yet.
+
+[duNES]: https://github.com/zachcmadsen/duNES
