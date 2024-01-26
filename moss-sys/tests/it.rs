@@ -66,5 +66,7 @@ fn run(opc: u8) {
     unsafe { moss_sys::cpu_free(cpu) };
 }
 
+processor_test!(opc_a5, 0xA5);
 processor_test!(opc_a9, 0xA9);
 processor_test!(opc_ad, 0xAD);
+processor_test!(opc_b5, 0xB5);

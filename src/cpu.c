@@ -15,8 +15,12 @@
     ({                                                                         \
         uint8_t low = (cpu)->ram[(cpu)->pc++];                                 \
         uint8_t high = (cpu)->ram[(cpu)->pc++];                                \
-        (low | high << 8);                                                     \
+        low | high << 8;                                                       \
     })
+
+#define ZPG(cpu) ({ (cpu)->ram[(cpu)->pc++]; })
+
+#define ZPX(cpu) ({ (uint8_t)((cpu)->ram[(cpu)->pc++] + (cpu)->x); })
 
 enum { ADDR_SPACE_SIZE = 65536 };
 
@@ -50,6 +54,16 @@ static void lda_abs(struct cpu *cpu) {
 
 static void lda_imm(struct cpu *cpu) {
     cpu->a = cpu->ram[cpu->pc++];
+    SET_ZN(cpu);
+}
+
+static void lda_zpg(struct cpu *cpu) {
+    cpu->a = cpu->ram[ZPG(cpu)];
+    SET_ZN(cpu);
+}
+
+static void lda_zpx(struct cpu *cpu) {
+    cpu->a = cpu->ram[ZPX(cpu)];
     SET_ZN(cpu);
 }
 
@@ -126,8 +140,10 @@ void cpu_step(struct cpu *cpu) {
 
     // clang-format off
     switch (opc) {
+    case 0xA5: lda_zpg(cpu); break;
     case 0xA9: lda_imm(cpu); break;
     case 0xAD: lda_abs(cpu); break;
+    case 0xB5: lda_zpx(cpu); break;
     default:
         printf("unknown opcode: 0x%X\n", opc);
         exit(EXIT_FAILURE);
