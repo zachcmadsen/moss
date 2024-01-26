@@ -5,22 +5,43 @@
 
 #include "cpu.h"
 
-#define SET_ZN(cpu)                                                            \
+#define READ(addr) ({ cpu->ram[(addr)]; })
+
+#define SET_ZN()                                                               \
     do {                                                                       \
-        (cpu)->p.z = (cpu)->a == 0;                                            \
-        (cpu)->p.n = ((cpu)->a & 0x80) != 0;                                   \
+        cpu->p.z = cpu->a == 0;                                                \
+        cpu->p.n = (cpu->a & 0x80) != 0;                                       \
     } while (0)
 
-#define ABS(cpu)                                                               \
-    ({                                                                         \
-        uint8_t low = (cpu)->ram[(cpu)->pc++];                                 \
-        uint8_t high = (cpu)->ram[(cpu)->pc++];                                \
-        low | high << 8;                                                       \
-    })
+#define ABS()                                                                  \
+    do {                                                                       \
+        uint8_t low = READ(cpu->pc++);                                         \
+        uint8_t high = READ(cpu->pc++);                                        \
+        operand = READ(low | high << 8);                                       \
+    } while (0)
 
-#define ZPG(cpu) ({ (cpu)->ram[(cpu)->pc++]; })
+#define IMM()                                                                  \
+    do {                                                                       \
+        operand = READ(cpu->pc++);                                             \
+    } while (0)
 
-#define ZPX(cpu) ({ (uint8_t)((cpu)->ram[(cpu)->pc++] + (cpu)->x); })
+#define ZPG()                                                                  \
+    do {                                                                       \
+        uint8_t addr = READ(cpu->pc++);                                        \
+        operand = READ(addr);                                                  \
+    } while (0)
+
+#define ZPX()                                                                  \
+    do {                                                                       \
+        uint8_t addr = READ(cpu->pc++) + cpu->x;                               \
+        operand = READ(addr);                                                  \
+    } while (0)
+
+#define LDA()                                                                  \
+    do {                                                                       \
+        cpu->a = operand;                                                      \
+        SET_ZN();                                                              \
+    } while (0)
 
 enum { ADDR_SPACE_SIZE = 65536 };
 
@@ -46,26 +67,6 @@ struct cpu {
 
     uint8_t ram[ADDR_SPACE_SIZE];
 };
-
-static void lda_abs(struct cpu *cpu) {
-    cpu->a = cpu->ram[ABS(cpu)];
-    SET_ZN(cpu);
-}
-
-static void lda_imm(struct cpu *cpu) {
-    cpu->a = cpu->ram[cpu->pc++];
-    SET_ZN(cpu);
-}
-
-static void lda_zpg(struct cpu *cpu) {
-    cpu->a = cpu->ram[ZPG(cpu)];
-    SET_ZN(cpu);
-}
-
-static void lda_zpx(struct cpu *cpu) {
-    cpu->a = cpu->ram[ZPX(cpu)];
-    SET_ZN(cpu);
-}
 
 struct cpu *cpu_new() {
     struct cpu *cpu = calloc(1, sizeof(struct cpu));
@@ -135,15 +136,17 @@ void cpu_write(struct cpu *cpu, uint16_t addr, uint8_t data) {
     cpu->ram[addr] = data;
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void cpu_step(struct cpu *cpu) {
-    uint8_t opc = cpu->ram[cpu->pc++];
+    uint8_t operand;
 
+    uint8_t opc = cpu->ram[cpu->pc++];
     // clang-format off
     switch (opc) {
-    case 0xA5: lda_zpg(cpu); break;
-    case 0xA9: lda_imm(cpu); break;
-    case 0xAD: lda_abs(cpu); break;
-    case 0xB5: lda_zpx(cpu); break;
+    case 0xA5: ZPG(); LDA(); break;
+    case 0xA9: IMM(); LDA(); break;
+    case 0xAD: ABS(); LDA(); break;
+    case 0xB5: ZPX(); LDA(); break;
     default:
         printf("unknown opcode: 0x%X\n", opc);
         exit(EXIT_FAILURE);
