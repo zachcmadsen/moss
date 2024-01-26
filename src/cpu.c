@@ -12,11 +12,10 @@
     } while (0)
 
 #define ABS(cpu)                                                               \
-    uint16_t addr;                                                             \
     do {                                                                       \
         uint8_t low = (cpu)->ram[(cpu)->pc++];                                 \
         uint8_t high = (cpu)->ram[(cpu)->pc++];                                \
-        addr = low | high << 8;                                                \
+        (cpu)->addr = low | high << 8;                                         \
     } while (0)
 
 enum { ADDR_SPACE_SIZE = 65536 };
@@ -34,6 +33,8 @@ struct status {
 static_assert(sizeof(struct status) == 1);
 
 struct cpu {
+    uint16_t addr;
+
     uint16_t pc;
     uint8_t a;
     uint8_t x;
@@ -46,7 +47,7 @@ struct cpu {
 
 static void lda_abs(struct cpu *cpu) {
     ABS(cpu);
-    cpu->a = cpu->ram[addr];
+    cpu->a = cpu->ram[cpu->addr];
     SET_ZN(cpu);
 }
 
