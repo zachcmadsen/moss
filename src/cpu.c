@@ -12,11 +12,11 @@
     } while (0)
 
 #define ABS(cpu)                                                               \
-    do {                                                                       \
+    ({                                                                         \
         uint8_t low = (cpu)->ram[(cpu)->pc++];                                 \
         uint8_t high = (cpu)->ram[(cpu)->pc++];                                \
-        (cpu)->addr = low | high << 8;                                         \
-    } while (0)
+        (low | high << 8);                                                     \
+    })
 
 enum { ADDR_SPACE_SIZE = 65536 };
 
@@ -33,8 +33,6 @@ struct status {
 static_assert(sizeof(struct status) == 1);
 
 struct cpu {
-    uint16_t addr;
-
     uint16_t pc;
     uint8_t a;
     uint8_t x;
@@ -46,8 +44,7 @@ struct cpu {
 };
 
 static void lda_abs(struct cpu *cpu) {
-    ABS(cpu);
-    cpu->a = cpu->ram[cpu->addr];
+    cpu->a = cpu->ram[ABS(cpu)];
     SET_ZN(cpu);
 }
 
@@ -127,17 +124,15 @@ void cpu_write(struct cpu *cpu, uint16_t addr, uint8_t data) {
 void cpu_step(struct cpu *cpu) {
     uint8_t opc = cpu->ram[cpu->pc++];
 
+    // clang-format off
     switch (opc) {
-    case 0xA9:
-        lda_imm(cpu);
-        break;
-    case 0xAD:
-        lda_abs(cpu);
-        break;
+    case 0xA9: lda_imm(cpu); break;
+    case 0xAD: lda_abs(cpu); break;
     default:
         printf("unknown opcode: 0x%X\n", opc);
         exit(EXIT_FAILURE);
     }
+    // clang-format on
 }
 
 void cpu_free(struct cpu *cpu) {
