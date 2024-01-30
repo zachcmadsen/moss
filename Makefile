@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-std=c2x -Wall -Wextra -Iinclude
+CFLAGS=-std=c2x -Wall -Wextra -pedantic -Wno-gnu-statement-expression -Iinclude 
 
 OUTDIR = build
 
