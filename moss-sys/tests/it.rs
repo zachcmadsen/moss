@@ -12,11 +12,13 @@ macro_rules! processor_test {
 }
 
 #[derive(Deserialize)]
-struct Test {
+struct Test<'a> {
     #[serde(rename = "initial")]
     start: CpuState,
     #[serde(rename = "final")]
     end: CpuState,
+    #[serde(borrow)]
+    cycles: Vec<(u16, u8, &'a str)>,
 }
 
 #[derive(Deserialize)]
@@ -48,6 +50,7 @@ fn run(opc: u8) {
             for (addr, data) in test.start.ram {
                 moss_sys::cpu_write(cpu, addr, data);
             }
+            moss_sys::cpu_reset_cycles(cpu);
 
             moss_sys::cpu_step(cpu);
 
@@ -60,6 +63,11 @@ fn run(opc: u8) {
             for (addr, data) in test.end.ram {
                 assert_eq!(moss_sys::cpu_read(cpu, addr), data);
             }
+            assert_eq!(moss_sys::cpu_cycles(cpu), test.cycles.len() as u8);
+            for (cycle, &(addr, data, _)) in test.cycles.iter().enumerate() {
+                assert_eq!(moss_sys::cpu_addr_bus(cpu, cycle), addr);
+                assert_eq!(moss_sys::cpu_data_bus(cpu, cycle), data);
+            }
         }
     }
 
@@ -70,3 +78,4 @@ processor_test!(opc_a5, 0xA5);
 processor_test!(opc_a9, 0xA9);
 processor_test!(opc_ad, 0xAD);
 processor_test!(opc_b5, 0xB5);
+processor_test!(opc_bd, 0xBD);

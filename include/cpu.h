@@ -21,3 +21,10 @@ uint8_t cpu_read(const struct cpu *cpu, uint16_t addr);
 void cpu_write(struct cpu *cpu, uint16_t addr, uint8_t data);
 void cpu_step(struct cpu *cpu);
 void cpu_free(struct cpu *cpu);
+
+#ifdef PROCESSOR_TESTS
+uint16_t cpu_addr_bus(struct cpu *cpu, size_t cycle);
+uint8_t cpu_data_bus(struct cpu *cpu, size_t cycle);
+uint8_t cpu_cycles(struct cpu *cpu);
+void cpu_reset_cycles(struct cpu *cpu);
+#endif

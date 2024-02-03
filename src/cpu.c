@@ -5,7 +5,23 @@
 
 #include "cpu.h"
 
+// TODO: Optionally make dummy read a no-op.
+#define DUMMY_READ READ
+
+#ifdef PROCESSOR_TESTS
+#define READ(addr)                                                             \
+    ({                                                                         \
+        uint16_t _addr = (addr);                                               \
+        uint8_t data = cpu->ram[(_addr)];                                      \
+        struct bus_state bus_state = {.a = _addr, .d = data};                  \
+        cpu->bus_states[cpu->cycles] = bus_state;                              \
+        ++cpu->cycles;                                                         \
+        data;                                                                  \
+    })
+
+#else
 #define READ(addr) cpu->ram[(addr)]
+#endif
 
 #define SET_ZN()                                                               \
     do {                                                                       \
@@ -18,6 +34,26 @@
         uint8_t low = READ(cpu->pc++);                                         \
         uint8_t high = READ(cpu->pc++);                                        \
         operand = READ(low | high << 8);                                       \
+    } while (0)
+
+#define ABX_R()                                                                \
+    do {                                                                       \
+        uint8_t low = READ(cpu->pc++) + cpu->x;                                \
+        bool overflow = low < cpu->x;                                          \
+        uint8_t high = READ(cpu->pc++);                                        \
+        if (overflow) {                                                        \
+            DUMMY_READ(low | high << 8);                                       \
+        }                                                                      \
+        operand = READ(low | (uint8_t)(high + overflow) << 8);                 \
+    } while (0)
+
+#define ABX_W()                                                                \
+    do {                                                                       \
+        uint8_t low = READ(cpu->pc++) + cpu->x;                                \
+        bool overflow = low < cpu->x;                                          \
+        uint8_t high = READ(cpu->pc++);                                        \
+        DUMMY_READ(low | high << 8);                                           \
+        operand = READ(low | (uint8_t)(high + overflow) << 8);                 \
     } while (0)
 
 #define IMM()                                                                  \
@@ -33,7 +69,16 @@
 
 #define ZPX()                                                                  \
     do {                                                                       \
-        uint8_t addr = READ(cpu->pc++) + cpu->x;                               \
+        uint8_t addr = READ(cpu->pc++);                                        \
+        DUMMY_READ(addr);                                                      \
+        addr += cpu->x;                                                        \
+        operand = READ(addr);                                                  \
+    } while (0)
+
+#define ZPY()                                                                  \
+    do {                                                                       \
+        uint8_t addr = READ(cpu->pc++) + cpu->y;                               \
+        DUMMY_READ(addr);                                                      \
         operand = READ(addr);                                                  \
     } while (0)
 
@@ -44,6 +89,13 @@
     } while (0)
 
 enum { ADDR_SPACE_SIZE = 65536 };
+
+#ifdef PROCESSOR_TESTS
+struct bus_state {
+    uint16_t a;
+    uint8_t d;
+};
+#endif
 
 struct status {
     bool c : 1;
@@ -66,6 +118,11 @@ struct cpu {
     struct status p;
 
     uint8_t ram[ADDR_SPACE_SIZE];
+
+#ifdef PROCESSOR_TESTS
+    struct bus_state bus_states[7];
+    size_t cycles;
+#endif
 };
 
 struct cpu *cpu_new() {
@@ -140,7 +197,7 @@ void cpu_write(struct cpu *cpu, uint16_t addr, uint8_t data) {
 void cpu_step(struct cpu *cpu) {
     uint8_t operand;
 
-    uint8_t opc = cpu->ram[cpu->pc++];
+    uint8_t opc = READ(cpu->pc++);
     // clang-format off
     switch (opc) {
     // case 0xA5: ZPG(); LDA(); break;
@@ -326,7 +383,7 @@ void cpu_step(struct cpu *cpu) {
     // case 0xBA:        TSX(); break;
     // case 0xBB: ABY_R(); LAS(); break;
     // case 0xBC: ABX_R(); LDY(); break;
-    // case 0xBD: ABX_R(); LDA(); break;
+    case 0xBD: ABX_R(); LDA(); break;
     // case 0xBE: ABY_R(); LDX(); break;
     // case 0xBF: ABY_R(); LAX(); break;
     // case 0xC0: IMM(); CPY(); break;
@@ -401,3 +458,21 @@ void cpu_step(struct cpu *cpu) {
 void cpu_free(struct cpu *cpu) {
     free(cpu);
 }
+
+#ifdef PROCESSOR_TESTS
+uint16_t cpu_addr_bus(struct cpu *cpu, size_t cycle) {
+    return cpu->bus_states[cycle].a;
+}
+
+uint8_t cpu_data_bus(struct cpu *cpu, size_t cycle) {
+    return cpu->bus_states[cycle].d;
+}
+
+uint8_t cpu_cycles(struct cpu *cpu) {
+    return cpu->cycles;
+}
+
+void cpu_reset_cycles(struct cpu *cpu) {
+    cpu->cycles = 0;
+}
+#endif

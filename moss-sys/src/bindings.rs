@@ -56,3 +56,15 @@ extern "C" {
 extern "C" {
     pub fn cpu_free(cpu: *mut cpu);
 }
+extern "C" {
+    pub fn cpu_addr_bus(cpu: *mut cpu, cycle: usize) -> u16;
+}
+extern "C" {
+    pub fn cpu_data_bus(cpu: *mut cpu, cycle: usize) -> u8;
+}
+extern "C" {
+    pub fn cpu_cycles(cpu: *mut cpu) -> u8;
+}
+extern "C" {
+    pub fn cpu_reset_cycles(cpu: *mut cpu);
+}
