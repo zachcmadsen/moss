@@ -23,7 +23,7 @@ tidy: build
 	clang-tidy --extra-arg=--std=c2x -header-filter=include/* src/*.c
 
 test:
-	cargo t --manifest-path moss-sys/Cargo.toml --test it
+	cargo test --release --manifest-path moss-sys/Cargo.toml --test it
 
 clean:
 	-rm -rf $(OUTDIR)/*
