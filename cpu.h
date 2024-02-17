@@ -7,6 +7,8 @@ namespace Moss {
 class Cpu
 {
   public:
+    Cpu() = default;
+
     [[nodiscard]] std::uint8_t A() const { return a; }
     void A(std::uint8_t a) { this->a = a; }
 
@@ -51,26 +53,28 @@ class Cpu
     void Step();
 
   private:
+    static constexpr std::size_t ADDR_SPACE_SIZE = 0x10000;
+
     struct Status
     {
-        bool c{};
-        bool z{};
-        bool i{};
-        bool d{};
-        bool b{};
-        bool u{};
-        bool v{};
-        bool n{};
+        bool c{ false };
+        bool z{ false };
+        bool i{ true };
+        bool d{ false };
+        bool b{ true };
+        bool u{ true };
+        bool v{ false };
+        bool n{ false };
     };
 
-    std::uint8_t a{};
-    std::uint8_t x{};
-    std::uint8_t y{};
-    std::uint16_t pc{};
-    std::uint8_t s{};
+    std::uint8_t a{ 0 };
+    std::uint8_t x{ 0 };
+    std::uint8_t y{ 0 };
+    std::uint16_t pc{ 0 };
+    std::uint8_t s{ 0xFD };
     Status p{};
 
-    std::array<std::uint8_t, 0x10000> ram{};
+    std::array<std::uint8_t, ADDR_SPACE_SIZE> ram{};
 
     std::uint16_t Imm() { return pc++; };
 
