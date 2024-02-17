@@ -1,4 +1,4 @@
-BasedOnStyle: llvm
+BasedOnStyle: Mozilla
 IndentWidth: 4
-AllowShortFunctionsOnASingleLine: None
-KeepEmptyLinesAtTheStartOfBlocks: false
+ColumnLimit: 80
+FixNamespaceComments: false

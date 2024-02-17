@@ -1,6 +1,0 @@
--std=c2x
--Wall
--Wextra
--pedantic
--Wno-gnu-statement-expression
--Iinclude
