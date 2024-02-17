@@ -4,13 +4,13 @@
 
 namespace Moss {
 void
-Cpu::step()
+Cpu::Step()
 {
     const std::uint8_t opc = ram.at(pc++);
     switch (opc) {
         case 0xA9:
-            const std::uint16_t addr = imm();
-            lda(addr);
+            const std::uint16_t addr = Imm();
+            Lda(addr);
             break;
     }
 }
