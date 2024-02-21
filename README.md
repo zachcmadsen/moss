@@ -6,4 +6,11 @@ I've written an interpreter for it before as part of an NES
 [emulator][duNES]. I'm still writing the baseline version, so there isn't
 much to see yet.
 
+## Build
+
+```bash
+$ cmake -S . -B build --preset=debug
+$ cmake --build build
+```
+
 [duNES]: https://github.com/zachcmadsen/duNES
