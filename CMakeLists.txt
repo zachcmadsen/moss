@@ -6,19 +6,19 @@ set(CMAKE_CXX_STANDARD 23)
 
 set(SOURCES main.cpp cpu.cpp)
 
-include(FetchContent)
-FetchContent_Declare(
-  simdjson
-  GIT_REPOSITORY https://github.com/simdjson/simdjson.git
-  GIT_TAG  tags/v3.6.0
-  GIT_SHALLOW TRUE
-  SYSTEM)
-FetchContent_MakeAvailable(simdjson)
+add_library(doctest INTERFACE)
+target_include_directories(doctest SYSTEM INTERFACE external/doctest)
+
+add_library(simdjson STATIC
+    external/simdjson/simdjson.cpp
+    external/simdjson/simdjson.h)
+target_include_directories(simdjson SYSTEM INTERFACE external/simdjson)
 # Ignore compiler warnings from simdjson.
 target_compile_options(simdjson PRIVATE -w)
 
 add_executable(moss ${SOURCES})
 target_include_directories(moss PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(moss PRIVATE doctest)
 target_link_libraries(moss PRIVATE simdjson)
 
 add_custom_target(tidy
