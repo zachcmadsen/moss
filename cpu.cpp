@@ -1,8 +1,8 @@
 #include <cstdint>
 #include <memory>
 
-#include "doctest.h"
-#include "simdjson.h"
+#include <doctest.h>
+#include <simdjson.h>
 
 #include "cpu.h"
 
@@ -12,7 +12,7 @@ namespace Moss {
 void
 Cpu::Step()
 {
-    const std::uint8_t opc = ram.at(pc++);
+    auto opc = ram[pc++];
     switch (opc) {
         case 0xA9:
             Lda(Imm());
@@ -26,7 +26,7 @@ TEST_CASE("ProcessorTests")
     auto cpu = std::make_unique<Moss::Cpu>();
 
     ondemand::parser parser;
-    auto json = padded_string::load("a9.json");
+    auto json = padded_string::load("processor_tests/a9.json");
 
     for (ondemand::object test : parser.iterate(json)) {
         ondemand::object start = test["initial"];

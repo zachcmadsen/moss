@@ -4,10 +4,13 @@
 #include <cstdint>
 
 namespace Moss {
-class Cpu
+class Cpu final
 {
   public:
     Cpu() = default;
+
+    [[nodiscard]] std::uint16_t Pc() const { return pc; }
+    void Pc(std::uint16_t pc) { this->pc = pc; }
 
     [[nodiscard]] std::uint8_t A() const { return a; }
     void A(std::uint8_t a) { this->a = a; }
@@ -17,9 +20,6 @@ class Cpu
 
     [[nodiscard]] std::uint8_t Y() const { return y; }
     void Y(std::uint8_t y) { this->y = y; }
-
-    [[nodiscard]] std::uint16_t Pc() const { return pc; }
-    void Pc(std::uint16_t pc) { this->pc = pc; }
 
     [[nodiscard]] std::uint8_t S() const { return s; }
     void S(std::uint8_t s) { this->s = s; }
@@ -44,11 +44,8 @@ class Cpu
         this->p.n = (p & 0x80) > 0;
     }
 
-    [[nodiscard]] std::uint8_t Read(std::uint16_t addr) const
-    {
-        return ram.at(addr);
-    }
-    void Write(std::uint16_t addr, std::uint8_t data) { ram.at(addr) = data; }
+    std::uint8_t Read(std::uint16_t addr) const { return ram[addr]; }
+    void Write(std::uint16_t addr, std::uint8_t data) { ram[addr] = data; }
 
     void Step();
 
@@ -67,20 +64,104 @@ class Cpu
         bool n{ false };
     };
 
+    std::uint16_t pc{ 0 };
     std::uint8_t a{ 0 };
     std::uint8_t x{ 0 };
     std::uint8_t y{ 0 };
-    std::uint16_t pc{ 0 };
     std::uint8_t s{ 0xFD };
     Status p{};
 
     std::array<std::uint8_t, ADDR_SPACE_SIZE> ram{};
 
+    template<bool write>
+    std::uint16_t Abx()
+    {
+        std::uint8_t low;
+        auto overflow = __builtin_add_overflow(Read(pc++), x, &low);
+        std::uint8_t high = Read(pc++);
+
+        if constexpr (write) {
+            Read(static_cast<uint16_t>(low | high << 8));
+        } else if (overflow) {
+            Read(static_cast<uint16_t>(low | high << 8));
+        }
+
+        return static_cast<uint16_t>(low | (high + overflow) << 8);
+    }
+
+    template<bool write>
+    std::uint16_t Aby()
+    {
+        std::uint8_t low;
+        auto overflow = __builtin_add_overflow(Read(pc++), x, &low);
+        auto high = Read(pc++);
+
+        if constexpr (write) {
+            Read(static_cast<uint16_t>(low | high << 8));
+        } else if (overflow) {
+            Read(static_cast<uint16_t>(low | high << 8));
+        }
+
+        return static_cast<uint16_t>(low | (high + overflow) << 8);
+    }
+
     std::uint16_t Imm() { return pc++; };
+
+    std::uint16_t Ind()
+    {
+        auto ptr_low = Read(pc++);
+        auto ptr_high = Read(pc++);
+        auto low = Read(static_cast<uint16_t>(ptr_low | ptr_high << 8));
+        auto high = Read(static_cast<uint16_t>((ptr_low + 1) | ptr_high << 8));
+        return static_cast<uint16_t>(low | high << 8);
+    }
+
+    std::uint16_t Idx()
+    {
+        auto ptr = Read(pc++);
+        Read(ptr);
+        ptr += x;
+        auto low = Read(ptr);
+        auto high = Read(ptr + 1);
+        return static_cast<uint16_t>(low | high << 8);
+    }
+
+    template<bool write>
+    std::uint16_t Idy()
+    {
+        auto ptr = Read(pc++);
+        std::uint8_t low;
+        auto overflow = __builtin_add_overflow(Read(ptr), y, &low);
+        auto high = Read(ptr + 1);
+
+        if constexpr (write) {
+            Read(static_cast<uint16_t>(low | high << 8));
+        } else if (overflow) {
+            Read(static_cast<uint16_t>(low | high << 8));
+        }
+
+        return static_cast<uint16_t>(low | (high + overflow) << 8);
+    }
+
+    std::uint16_t Zpg() { return Read(pc++); }
+
+    std::uint16_t Zpx()
+    {
+        auto addr = Read(pc++);
+        Read(addr);
+        return addr + x;
+    }
+
+    std::uint16_t Zpy()
+    {
+        auto addr = Read(pc++);
+        Read(addr);
+        return addr + y;
+    }
 
     void Lda(std::uint16_t addr)
     {
-        a = ram.at(addr);
+        a = Read(addr);
         p.z = a == 0;
         p.n = (a & 0x80) != 0;
     };
