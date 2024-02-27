@@ -7,12 +7,12 @@ set(CMAKE_CXX_STANDARD 23)
 set(SOURCES main.cpp cpu.cpp)
 
 add_library(doctest INTERFACE)
-target_include_directories(doctest SYSTEM INTERFACE external/doctest)
+target_include_directories(doctest SYSTEM INTERFACE external/doctest/doctest)
 
 add_library(simdjson STATIC
-    external/simdjson/simdjson.cpp
-    external/simdjson/simdjson.h)
-target_include_directories(simdjson SYSTEM INTERFACE external/simdjson)
+    external/simdjson/singleheader/simdjson.cpp
+    external/simdjson/singleheader/simdjson.h)
+target_include_directories(simdjson SYSTEM INTERFACE external/simdjson/singleheader)
 # Ignore compiler warnings from simdjson.
 target_compile_options(simdjson PRIVATE -w)
 
