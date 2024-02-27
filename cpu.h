@@ -638,7 +638,7 @@ class Cpu final
         Add(data);
     }
 
-    void Rti(std::uint16_t addr)
+    void Rti([[maybe_unused]] std::uint16_t addr)
     {
         Read(pc);
         Peek();
@@ -651,7 +651,7 @@ class Cpu final
         pc = static_cast<std::uint16_t>(pcl | pch << 8);
     }
 
-    void Rts(std::uint16_t addr)
+    void Rts([[maybe_unused]] std::uint16_t addr)
     {
         Read(pc);
         Peek();
@@ -742,7 +742,7 @@ class Cpu final
         ShInner(addr, s);
     }
 
-    void Tax(std::uint16_t addr)
+    void Tax([[maybe_unused]] std::uint16_t addr)
     {
         Read(pc);
         x = a;
@@ -750,7 +750,7 @@ class Cpu final
         p.n = x & 0x80;
     }
 
-    void Tay(std::uint16_t addr)
+    void Tay([[maybe_unused]] std::uint16_t addr)
     {
         Read(pc);
         y = a;
@@ -758,7 +758,7 @@ class Cpu final
         p.n = y & 0x80;
     }
 
-    void Tsx(std::uint16_t addr)
+    void Tsx([[maybe_unused]] std::uint16_t addr)
     {
         Read(pc);
         x = s;
@@ -766,7 +766,7 @@ class Cpu final
         p.n = x & 0x80;
     }
 
-    void Txa(std::uint16_t addr)
+    void Txa([[maybe_unused]] std::uint16_t addr)
     {
         Read(pc);
         a = x;
@@ -774,13 +774,13 @@ class Cpu final
         p.n = a & 0x80;
     }
 
-    void Txs(std::uint16_t addr)
+    void Txs([[maybe_unused]] std::uint16_t addr)
     {
         Read(pc);
         s = x;
     }
 
-    void Tya(std::uint16_t addr)
+    void Tya([[maybe_unused]] std::uint16_t addr)
     {
         Read(pc);
         a = y;
