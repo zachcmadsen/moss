@@ -30,6 +30,7 @@ class Cpu final
     std::uint8_t Read(std::uint16_t addr) const { return ram[addr]; }
     void Write(std::uint16_t addr, std::uint8_t data) { ram[addr] = data; }
 
+    void Reset();
     void Step();
 
   private:

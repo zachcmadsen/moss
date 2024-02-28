@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <fstream>
 #include <memory>
 
 #include <doctest.h>
@@ -9,6 +10,22 @@
 using namespace simdjson;
 
 namespace Moss {
+void
+Cpu::Reset()
+{
+    Read(pc);
+    Peek();
+    --s;
+    Peek();
+    --s;
+    Peek();
+    --s;
+    p.i = true;
+    auto pcl = Read(0xFFFC);
+    auto pch = Read(0xFFFC + 1);
+    pc = static_cast<std::uint16_t>(pcl | pch << 8);
+}
+
 void
 Cpu::Step()
 {
@@ -553,4 +570,28 @@ TEST_CASE("ProcessorTests")
     SUBCASE("FE") { run(0xFE); }
     SUBCASE("FF") { run(0xFF); }
     // clang-format on
+}
+
+TEST_CASE("Functional")
+{
+    Moss::Cpu cpu{};
+    std::ifstream rom{ "6502_functional_test.bin", std::ios::binary };
+    std::uint16_t addr = 0x000A;
+    std::for_each(std::istreambuf_iterator<char>{ rom },
+                  std::istreambuf_iterator<char>{},
+                  [&](std::uint8_t data) { cpu.Write(addr++, data); });
+
+    cpu.Reset();
+    cpu.Pc(0x0400);
+    auto prev_pc = cpu.Pc();
+    while (true) {
+        cpu.Step();
+
+        if (prev_pc == cpu.Pc()) {
+            REQUIRE(cpu.Pc() == 0x336D);
+            break;
+        }
+
+        prev_pc = cpu.Pc();
+    }
 }
