@@ -8,9 +8,11 @@
 #include <simdjson.h>
 #pragma GCC diagnostic pop
 
-namespace {
+#include "integer.h"
 
-void RunProcessorTest(std::uint16_t opc) {
+namespace moss {
+
+void RunProcessorTest(u16 opc) {
     auto cpu = std::make_unique<moss::Cpu>();
 
     auto json = simdjson::padded_string::load(
@@ -19,17 +21,17 @@ void RunProcessorTest(std::uint16_t opc) {
 
     for (simdjson::ondemand::object test : parser.iterate(json)) {
         auto start = test["initial"];
-        cpu->Pc(static_cast<std::uint16_t>(start["pc"].get_int64()));
-        cpu->S(static_cast<std::uint8_t>(start["s"].get_int64()));
-        cpu->A(static_cast<std::uint8_t>(start["a"].get_int64()));
-        cpu->X(static_cast<std::uint8_t>(start["x"].get_int64()));
-        cpu->Y(static_cast<std::uint8_t>(start["y"].get_int64()));
-        cpu->P(static_cast<std::uint8_t>(start["p"].get_int64()));
+        cpu->Pc(u16(start["pc"].get_int64()));
+        cpu->S(u8(start["s"].get_int64()));
+        cpu->A(u8(start["a"].get_int64()));
+        cpu->X(u8(start["x"].get_int64()));
+        cpu->Y(u8(start["y"].get_int64()));
+        cpu->P(u8(start["p"].get_int64()));
         for (simdjson::ondemand::array entry : start["ram"].get_array()) {
             auto it = entry.begin();
-            uint16_t addr = static_cast<std::uint16_t>((*it).get_int64());
+            uint16_t addr = u16((*it).get_int64());
             ++it;
-            uint8_t data = static_cast<std::uint8_t>((*it).get_int64());
+            uint8_t data = u8((*it).get_int64());
             cpu->Write(addr, data);
         }
 
@@ -45,9 +47,9 @@ void RunProcessorTest(std::uint16_t opc) {
         ASSERT_TRUE(cpu->P() == end["p"].get_int64());
         for (simdjson::ondemand::array entry : end["ram"].get_array()) {
             auto it = entry.begin();
-            uint16_t addr = static_cast<std::uint16_t>((*it).get_int64());
+            uint16_t addr = u16((*it).get_int64());
             ++it;
-            uint8_t data = static_cast<std::uint8_t>((*it).get_int64());
+            uint8_t data = u8((*it).get_int64());
             ASSERT_TRUE(cpu->Read(addr) == data);
         }
     }

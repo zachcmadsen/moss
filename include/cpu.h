@@ -66,16 +66,15 @@ class Cpu final {
   private:
     struct Status {
         Status() = default;
-        explicit Status(std::uint8_t p)
+        explicit Status(u8 p)
             : c{(p & 0x01) != 0}, z{(p & 0x02) != 0}, i{(p & 0x04) != 0},
               d{(p & 0x08) != 0}, b{(p & 0x10) != 0}, u{(p & 0x20) != 0},
               v{(p & 0x40) != 0}, n{(p & 0x80) != 0} {
         }
 
-        explicit operator std::uint8_t() const {
-            return static_cast<std::uint8_t>(c | (z << 1) | (i << 2) |
-                                             (d << 3) | (b << 4) | (u << 5) |
-                                             (v << 6) | (n << 7));
+        explicit operator u8() const {
+            return u8(c | (z << 1) | (i << 2) | (d << 3) | (b << 4) | (u << 5) |
+                      (v << 6) | (n << 7));
         }
 
         bool c{false};
@@ -91,23 +90,23 @@ class Cpu final {
     static constexpr std::size_t AddrSpaceSize = 0x10000;
     static constexpr std::size_t StackAddr = 0x0100;
 
-    std::uint16_t pc{0};
-    std::uint8_t a{0};
-    std::uint8_t x{0};
-    std::uint8_t y{0};
-    std::uint8_t s{0xFD};
+    u16 pc{0};
+    u8 a{0};
+    u8 x{0};
+    u8 y{0};
+    u8 s{0xFD};
     Status p{};
 
     // SHA/SHX/SHY instructions need to know if there was a page cross while
     // getting the effective address.
     bool page_cross;
 
-    std::array<std::uint8_t, AddrSpaceSize> ram{};
+    std::array<u8, AddrSpaceSize> ram{};
 
-    void Add(std::uint8_t data) {
+    void Add(u8 data) {
         auto prev_a = a;
         auto sum = a + data + p.c;
-        a = static_cast<std::uint8_t>(sum);
+        a = u8(sum);
         p.c = sum > 0xFF;
         p.v = (prev_a ^ a) & (data ^ a) & 0x80;
         p.z = !a;
@@ -120,11 +119,10 @@ class Cpu final {
             Read(pc);
 
             auto prev_pc = pc;
-            pc += static_cast<std::int8_t>(offset);
+            pc += i8(offset);
 
             if ((prev_pc & 0xFF00) != (pc & 0xFF00)) {
-                Read(static_cast<std::uint8_t>(prev_pc + offset) |
-                     (prev_pc & 0xFF00));
+                Read(u8(prev_pc + offset) | (prev_pc & 0xFF00));
             }
         }
     }
@@ -137,25 +135,25 @@ class Cpu final {
         p.n = diff & 0x80;
     }
 
-    std::uint8_t Peek() const {
+    u8 Peek() const {
         return Read(StackAddr + s);
     }
 
-    std::uint8_t Pop() {
+    u8 Pop() {
         ++s;
         return Read(StackAddr + s);
     }
 
-    void Push(std::uint8_t data) {
+    void Push(u8 data) {
         Write(StackAddr + s, data);
         --s;
     }
 
-    void ShInner(std::uint16_t addr, std::uint8_t reg) {
-        std::uint8_t high = addr >> 8;
-        std::uint8_t thing = reg & (high + !page_cross);
+    void ShInner(u16 addr, u8 reg) {
+        u8 high = addr >> 8;
+        u8 thing = reg & (high + !page_cross);
         high = page_cross ? thing : high;
-        Write(static_cast<std::uint16_t>((addr & 0x00FF) | high << 8), thing);
+        Write(u16((addr & 0x00FF) | high << 8), thing);
     }
 
     // Addressing modes

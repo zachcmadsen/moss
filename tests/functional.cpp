@@ -6,15 +6,17 @@
 
 #include <gtest/gtest.h>
 
-namespace {
+#include "integer.h"
+
+namespace moss {
 
 TEST(Klaus, Functional) {
     auto cpu = std::make_unique<moss::Cpu>();
     std::ifstream rom{"../../6502_functional_test.bin", std::ios::binary};
-    std::uint16_t addr = 0x000A;
+    u16 addr = 0x000A;
     std::for_each(std::istreambuf_iterator<char>{rom},
                   std::istreambuf_iterator<char>{},
-                  [&](std::uint8_t data) { cpu->Write(addr++, data); });
+                  [&](u8 data) { cpu->Write(addr++, data); });
 
     cpu->Reset();
     cpu->Pc(0x0400);
