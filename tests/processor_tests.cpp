@@ -35,6 +35,7 @@ void RunProcessorTest(std::uint16_t opc) {
 
         cpu->Step();
 
+        // TODO: Assert bus activity.
         simdjson::ondemand::object end = test["final"];
         ASSERT_TRUE(cpu->Pc() == end["pc"].get_int64());
         ASSERT_TRUE(cpu->S() == end["s"].get_int64());
