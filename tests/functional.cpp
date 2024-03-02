@@ -8,12 +8,11 @@
 
 namespace {
 
-TEST(Klaus, Functional)
-{
+TEST(Klaus, Functional) {
     auto cpu = std::make_unique<Moss::Cpu>();
-    std::ifstream rom{ "../../6502_functional_test.bin", std::ios::binary };
+    std::ifstream rom{"../../6502_functional_test.bin", std::ios::binary};
     std::uint16_t addr = 0x000A;
-    std::for_each(std::istreambuf_iterator<char>{ rom },
+    std::for_each(std::istreambuf_iterator<char>{rom},
                   std::istreambuf_iterator<char>{},
                   [&](std::uint8_t data) { cpu->Write(addr++, data); });
 

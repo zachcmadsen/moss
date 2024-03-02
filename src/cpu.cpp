@@ -4,9 +4,7 @@
 
 namespace Moss {
 
-void
-Cpu::Reset()
-{
+void Cpu::Reset() {
     Read(pc);
     Peek();
     --s;
@@ -20,9 +18,7 @@ Cpu::Reset()
     pc = static_cast<std::uint16_t>(pcl | pch << 8);
 }
 
-void
-Cpu::Step()
-{
+void Cpu::Step() {
     auto opc = ram[pc++];
     // clang-format off
     switch (opc) {

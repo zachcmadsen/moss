@@ -10,13 +10,11 @@
 
 namespace {
 
-void
-RunProcessorTest(std::uint16_t opc)
-{
+void RunProcessorTest(std::uint16_t opc) {
     auto cpu = std::make_unique<Moss::Cpu>();
 
     auto json = simdjson::padded_string::load(
-      std::format("../../processor_tests/{:02x}.json", opc));
+        std::format("../../processor_tests/{:02x}.json", opc));
     simdjson::ondemand::parser parser;
 
     for (simdjson::ondemand::object test : parser.iterate(json)) {
