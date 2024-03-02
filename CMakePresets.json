@@ -11,7 +11,18 @@
                 "CMAKE_CXX_COMPILER": "clang.exe",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Weffc++ -Wconversion -Wsign-conversion"
+                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Weffc++ -Wconversion -Wsign-conversion -fsanitize=undefined -fsanitize=address"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release",
+            "binaryDir": "${sourceDir}/build-release",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang.exe",
+                "CMAKE_CXX_COMPILER": "clang.exe",
+                "CMAKE_BUILD_TYPE": "Release"
             }
         }
     ]
