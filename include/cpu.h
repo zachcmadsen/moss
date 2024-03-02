@@ -100,7 +100,7 @@ class Cpu final {
 
     // SHA/SHX/SHY instructions need to know if there was a page cross while
     // getting the effective address.
-    bool pageCross;
+    bool page_cross;
 
     std::array<std::uint8_t, AddrSpaceSize> ram{};
 
@@ -153,101 +153,23 @@ class Cpu final {
 
     void ShInner(std::uint16_t addr, std::uint8_t reg) {
         std::uint8_t high = addr >> 8;
-        std::uint8_t thing = reg & (high + !pageCross);
-        high = pageCross ? thing : high;
+        std::uint8_t thing = reg & (high + !page_cross);
+        high = page_cross ? thing : high;
         Write(static_cast<std::uint16_t>((addr & 0x00FF) | high << 8), thing);
     }
 
-    std::uint16_t Abs() {
-        auto low = Read(pc++);
-        auto high = Read(pc++);
-        return static_cast<std::uint16_t>(low | high << 8);
-    }
-
-    template <bool write> std::uint16_t Abx() {
-        std::uint8_t low;
-        pageCross = __builtin_add_overflow(Read(pc++), x, &low);
-        std::uint8_t high = Read(pc++);
-
-        if constexpr (write) {
-            Read(static_cast<std::uint16_t>(low | high << 8));
-        } else if (pageCross) {
-            Read(static_cast<std::uint16_t>(low | high << 8));
-        }
-
-        return static_cast<std::uint16_t>(low | (high + pageCross) << 8);
-    }
-
-    template <bool write> std::uint16_t Aby() {
-        std::uint8_t low;
-        pageCross = __builtin_add_overflow(Read(pc++), y, &low);
-        auto high = Read(pc++);
-
-        if constexpr (write) {
-            Read(static_cast<uint16_t>(low | high << 8));
-        } else if (pageCross) {
-            Read(static_cast<uint16_t>(low | high << 8));
-        }
-
-        return static_cast<uint16_t>(low | (high + pageCross) << 8);
-    }
-
-    std::uint16_t Imm() {
-        return pc++;
-    };
-
-    std::uint16_t Imp() {
-        return pc;
-    }
-
-    std::uint16_t Ind() {
-        auto ptr_low = Read(pc++);
-        auto ptr_high = Read(pc++);
-        auto low = Read(static_cast<uint16_t>(ptr_low | ptr_high << 8));
-        auto high = Read(static_cast<uint16_t>(
-            static_cast<std::uint8_t>(ptr_low + 1) | ptr_high << 8));
-        return static_cast<uint16_t>(low | high << 8);
-    }
-
-    std::uint16_t Idx() {
-        auto ptr = Read(pc++);
-        Read(ptr);
-        ptr += x;
-        auto low = Read(ptr);
-        auto high = Read(static_cast<std::uint8_t>(ptr + 1));
-        return static_cast<uint16_t>(low | high << 8);
-    }
-
-    template <bool write> std::uint16_t Idy() {
-        auto ptr = Read(pc++);
-        std::uint8_t low;
-        pageCross = __builtin_add_overflow(Read(ptr), y, &low);
-        auto high = Read(static_cast<std::uint8_t>(ptr + 1));
-
-        if constexpr (write) {
-            Read(static_cast<uint16_t>(low | high << 8));
-        } else if (pageCross) {
-            Read(static_cast<uint16_t>(low | high << 8));
-        }
-
-        return static_cast<uint16_t>(low | (high + pageCross) << 8);
-    }
-
-    std::uint16_t Zpg() {
-        return Read(pc++);
-    }
-
-    std::uint16_t Zpx() {
-        auto addr = Read(pc++);
-        Read(addr);
-        return static_cast<std::uint8_t>(addr + x);
-    }
-
-    std::uint16_t Zpy() {
-        auto addr = Read(pc++);
-        Read(addr);
-        return static_cast<std::uint8_t>(addr + y);
-    }
+    // Addressing modes
+    u16 Abs();
+    template <bool write> u16 Abx();
+    template <bool write> u16 Aby();
+    u16 Idx();
+    template <bool write> u16 Idy();
+    u16 Imm();
+    u16 Imp();
+    u16 Ind();
+    u16 Zpg();
+    u16 Zpx();
+    u16 Zpy();
 
     void Adc(std::uint16_t addr) {
         auto data = Read(addr);

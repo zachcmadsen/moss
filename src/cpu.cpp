@@ -270,4 +270,88 @@ void Cpu::Step() {
     // clang-format on
 }
 
+u16 Cpu::Abs() {
+    auto low = Read(pc++);
+    auto high = Read(pc++);
+    return u16(low | high << 8);
+}
+
+template <bool write> u16 Cpu::Abx() {
+    u8 low;
+    page_cross = __builtin_add_overflow(Read(pc++), x, &low);
+    u8 high = Read(pc++);
+    if constexpr (write) {
+        Read(u16(low | high << 8));
+    } else if (page_cross) {
+        Read(u16(low | high << 8));
+    }
+    return u16(low | (high + page_cross) << 8);
+}
+
+template <bool write> u16 Cpu::Aby() {
+    u8 low;
+    page_cross = __builtin_add_overflow(Read(pc++), y, &low);
+    auto high = Read(pc++);
+    if constexpr (write) {
+        Read(u16(low | high << 8));
+    } else if (page_cross) {
+        Read(u16(low | high << 8));
+    }
+    return u16(low | (high + page_cross) << 8);
+}
+
+u16 Cpu::Idx() {
+    auto ptr = Read(pc++);
+    Read(ptr);
+    ptr += x;
+    auto low = Read(ptr);
+    auto high = Read(u8(ptr + 1));
+    return u16(low | high << 8);
+}
+
+template <bool write> u16 Cpu::Idy() {
+    auto ptr = Read(pc++);
+    std::uint8_t low;
+    page_cross = __builtin_add_overflow(Read(ptr), y, &low);
+    auto high = Read(u8(ptr + 1));
+    if constexpr (write) {
+        Read(u16(low | high << 8));
+    } else if (page_cross) {
+        Read(u16(low | high << 8));
+    }
+    return u16(low | (high + page_cross) << 8);
+}
+
+u16 Cpu::Imm() {
+    return pc++;
+};
+
+u16 Cpu::Imp() {
+    return pc;
+}
+
+u16 Cpu::Ind() {
+    auto ptr_low = Read(pc++);
+    auto ptr_high = Read(pc++);
+    auto low = Read(u16(ptr_low | ptr_high << 8));
+    auto high = Read(u16(u8(ptr_low + 1) | ptr_high << 8));
+    return u16(low | high << 8);
+}
+
+u16 Cpu::Zpg() {
+    return Read(pc++);
+}
+
+u16 Cpu::Zpx() {
+    auto addr = Read(pc++);
+    Read(addr);
+    return u8(addr + x);
+}
+
+u16 Cpu::Zpy() {
+    auto addr = Read(pc++);
+    Read(addr);
+    return u8(addr + y);
+}
+
 }
