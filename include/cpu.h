@@ -90,6 +90,8 @@ class Cpu final {
 
     static constexpr std::size_t AddrSpaceSize = 0x10000;
     static constexpr std::size_t StackAddr = 0x0100;
+    static constexpr u16 ResetVector = 0xFFFC;
+    static constexpr u16 IrqVector = 0xFFFE;
 
     u16 pc{0};
     u8 a{0};

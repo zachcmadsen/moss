@@ -21,8 +21,8 @@ void Cpu::Reset() {
     Peek();
     --s;
     p.i = true;
-    auto pcl = Read(0xFFFC);
-    auto pch = Read(0xFFFC + 1);
+    auto pcl = Read(ResetVector);
+    auto pch = Read(ResetVector + 1);
     pc = u16(pcl | pch << 8);
 }
 
@@ -457,8 +457,8 @@ void Cpu::Brk([[maybe_unused]] u16 addr) {
     p_with_b.b = true;
     Push(u8(p_with_b));
     p.i = true;
-    auto pcl = Read(0xFFFE);
-    auto pch = Read(0xFFFE + 1);
+    auto pcl = Read(IrqVector);
+    auto pch = Read(IrqVector + 1);
     pc = u16(pcl | pch << 8);
 }
 
