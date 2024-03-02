@@ -1,36 +1,67 @@
 #pragma once
 
+#include "integer.h"
+
 #include <array>
 #include <cstdint>
 
 namespace Moss {
+
 class Cpu final
 {
   public:
     Cpu() = default;
 
-    [[nodiscard]] std::uint16_t Pc() const { return pc; }
-    void Pc(std::uint16_t pc) { this->pc = pc; }
+    /// TODO
+    [[nodiscard]] u8 A() const;
 
-    [[nodiscard]] std::uint8_t A() const { return a; }
-    void A(std::uint8_t a) { this->a = a; }
+    /// TODO
+    void A(u8 a);
 
-    [[nodiscard]] std::uint8_t X() const { return x; }
-    void X(std::uint8_t x) { this->x = x; }
+    /// TODO
+    [[nodiscard]] u8 X() const;
 
-    [[nodiscard]] std::uint8_t Y() const { return y; }
-    void Y(std::uint8_t y) { this->y = y; }
+    /// TODO
+    void X(u8 x);
 
-    [[nodiscard]] std::uint8_t S() const { return s; }
-    void S(std::uint8_t s) { this->s = s; }
+    /// TODO
+    [[nodiscard]] u8 Y() const;
 
-    [[nodiscard]] std::uint8_t P() const { return p; }
-    void P(std::uint8_t p) { this->p = p; }
+    /// TODO
+    void Y(u8 y);
 
-    std::uint8_t Read(std::uint16_t addr) const { return ram[addr]; }
-    void Write(std::uint16_t addr, std::uint8_t data) { ram[addr] = data; }
+    /// Returns the contents of the PC register.
+    [[nodiscard]] u16 Pc() const;
 
+    /// Sets the PC register to `pc`.
+    void Pc(u16 pc);
+
+    /// TODO
+    [[nodiscard]] u8 S() const;
+
+    /// TODO
+    void S(u8 s);
+
+    /// TODO
+    [[nodiscard]] u8 P() const;
+
+    /// TODO
+    void P(u8 p);
+
+    /// TODO
+    u8 Read(u16 addr) const;
+
+    /// TODO
+    void Write(u16 addr, u8 data);
+
+    // TODO: Add a loam rom function?
+
+    /// Runs the reset sequence. Note, the CPU doesn't execute the sequence the
+    /// first time `Step` is called. You have to do it manually by calling
+    /// this function.
     void Reset();
+
+    /// Steps the CPU by one instruction.
     void Step();
 
   private:
@@ -789,4 +820,89 @@ class Cpu final
         p.n = a & 0x80;
     }
 };
+
+inline u8
+Cpu::A() const
+{
+    return a;
+}
+
+inline void
+Cpu::A(u8 a)
+{
+    this->a = a;
+}
+
+inline u8
+Cpu::X() const
+{
+    return x;
+}
+
+inline void
+Cpu::X(u8 x)
+{
+    this->x = x;
+}
+
+inline u8
+Cpu::Y() const
+{
+    return y;
+}
+
+inline void
+Cpu::Y(u8 y)
+{
+    this->y = y;
+}
+
+inline u16
+Cpu::Pc() const
+{
+    return pc;
+}
+
+inline void
+Cpu::Pc(u16 pc)
+{
+    this->pc = pc;
+}
+
+inline u8
+Cpu::S() const
+{
+    return s;
+}
+
+inline void
+Cpu::S(u8 s)
+{
+    this->s = s;
+}
+
+inline u8
+Cpu::P() const
+{
+    return p;
+}
+
+inline void
+Cpu::P(u8 p)
+{
+    this->p = p;
+}
+
+inline u8
+Cpu::Read(u16 addr) const
+{
+    return ram[addr];
+}
+
+inline void
+Cpu::Write(u16 addr, u8 data)
+{
+    ram[addr] = data;
+};
+
 }
