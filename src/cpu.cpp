@@ -1,6 +1,6 @@
 #include "cpu.h"
 
-#include <cstdint>
+#include "integer.h"
 
 namespace moss {
 
@@ -352,6 +352,533 @@ u16 Cpu::Zpy() {
     auto addr = Read(pc++);
     Read(addr);
     return u8(addr + y);
+}
+
+void Cpu::Adc(u16 addr) {
+    auto data = Read(addr);
+    Add(data);
+};
+
+void Cpu::Alr(u16 addr) {
+    a &= Read(addr);
+    bool carry = a & 0x01;
+    a >>= 1;
+    p.c = carry;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Anc(u16 addr) {
+    a &= Read(addr);
+    p.c = a & 0x80;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::And(u16 addr) {
+    a &= Read(addr);
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Arr(u16 addr) {
+    a &= Read(addr);
+    a = u8(a >> 1 | p.c << 7);
+    p.c = a & (1 << 6);
+    p.v = (p.c << 5) ^ (a & (1 << 5));
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Asl(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    bool carry = data & 0x80;
+    data <<= 1;
+    Write(addr, data);
+    p.c = carry;
+    p.z = !data;
+    p.n = data & 0x80;
+}
+
+void Cpu::AslA([[maybe_unused]] u16 addr) {
+    Read(pc);
+    bool carry = a & 0x80;
+    a <<= 1;
+    p.c = carry;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Bcc([[maybe_unused]] u16 addr) {
+    Branch(!p.c);
+}
+
+void Cpu::Bcs([[maybe_unused]] u16 addr) {
+    Branch(p.c);
+}
+
+void Cpu::Beq([[maybe_unused]] u16 addr) {
+    Branch(p.z);
+}
+
+void Cpu::Bit(u16 addr) {
+    auto data = Read(addr);
+    p.z = !(a & data);
+    p.v = data & 0x40;
+    p.n = data & 0x80;
+}
+
+void Cpu::Bmi([[maybe_unused]] u16 addr) {
+    Branch(p.n);
+}
+
+void Cpu::Bne([[maybe_unused]] u16 addr) {
+    Branch(!p.z);
+}
+
+void Cpu::Bpl([[maybe_unused]] u16 addr) {
+    Branch(!p.n);
+}
+
+void Cpu::Brk([[maybe_unused]] u16 addr) {
+    Read(pc++);
+    Push(pc >> 8);
+    Push(u8(pc));
+    auto p_with_b = p;
+    p_with_b.b = true;
+    Push(u8(p_with_b));
+    p.i = true;
+    auto pcl = Read(0xFFFE);
+    auto pch = Read(0xFFFE + 1);
+    pc = u16(pcl | pch << 8);
+}
+
+void Cpu::Bvc([[maybe_unused]] u16 addr) {
+    Branch(!p.v);
+}
+
+void Cpu::Bvs([[maybe_unused]] u16 addr) {
+    Branch(p.v);
+}
+
+void Cpu::Clc([[maybe_unused]] u16 addr) {
+    Read(pc);
+    p.c = false;
+}
+
+void Cpu::Cld([[maybe_unused]] u16 addr) {
+    Read(pc);
+    p.d = false;
+}
+
+void Cpu::Cli([[maybe_unused]] u16 addr) {
+    Read(pc);
+    p.i = false;
+}
+
+void Cpu::Clv([[maybe_unused]] u16 addr) {
+    Read(pc);
+    p.v = false;
+}
+
+void Cpu::Cmp(u16 addr) {
+    auto data = Read(addr);
+    Compare(a, data);
+}
+
+void Cpu::Cpx(u16 addr) {
+    auto data = Read(addr);
+    Compare(x, data);
+}
+
+void Cpu::Cpy(u16 addr) {
+    auto data = Read(addr);
+    Compare(y, data);
+}
+
+void Cpu::Dcp(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    --data;
+    Write(addr, data);
+    Compare(a, data);
+}
+
+void Cpu::Dec(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    --data;
+    Write(addr, data);
+    p.z = !data;
+    p.n = data & 0x80;
+}
+
+void Cpu::Dex([[maybe_unused]] u16 addr) {
+    Read(pc);
+    --x;
+    p.z = !x;
+    p.n = x & 0x80;
+}
+
+void Cpu::Dey([[maybe_unused]] u16 addr) {
+    Read(pc);
+    --y;
+    p.z = !y;
+    p.n = y & 0x80;
+}
+
+void Cpu::Eor(u16 addr) {
+    a ^= Read(addr);
+    p.z = !a;
+    p.n = a & 0x80;
+};
+
+void Cpu::Inc(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    ++data;
+    Write(addr, data);
+    p.z = !data;
+    p.n = data & 0x80;
+}
+
+void Cpu::Inx([[maybe_unused]] u16 addr) {
+    Read(pc);
+    ++x;
+    p.z = !x;
+    p.n = x & 0x80;
+}
+
+void Cpu::Iny([[maybe_unused]] u16 addr) {
+    Read(pc);
+    ++y;
+    p.z = !y;
+    p.n = y & 0x80;
+}
+
+void Cpu::Isc(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    ++data;
+    Write(addr, data);
+    Add(data ^ 0xFF);
+}
+
+void Cpu::Jmp(u16 addr) {
+    pc = addr;
+}
+
+void Cpu::Jsr([[maybe_unused]] u16 addr) {
+    auto pcl = Read(pc++);
+    Peek();
+    Push(pc >> 8);
+    Push(u8(pc));
+    auto pch = Read(pc++);
+    pc = u16(pcl | pch << 8);
+}
+
+void Cpu::Las(u16 addr) {
+    a = Read(addr) & s;
+    x = a;
+    s = a;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Lax(u16 addr) {
+    a = Read(addr);
+    x = a;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Lda(u16 addr) {
+    a = Read(addr);
+    p.z = !a;
+    p.n = a & 0x80;
+};
+
+void Cpu::Ldx(u16 addr) {
+    x = Read(addr);
+    p.z = !x;
+    p.n = x & 0x80;
+};
+
+void Cpu::Ldy(u16 addr) {
+    y = Read(addr);
+    p.z = !y;
+    p.n = y & 0x80;
+};
+
+void Cpu::Lsr(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    bool carry = data & 0x01;
+    data >>= 1;
+    Write(addr, data);
+    p.c = carry;
+    p.z = !data;
+    p.n = data & 0x80;
+}
+
+void Cpu::LsrA([[maybe_unused]] u16 addr) {
+    Read(pc);
+    bool carry = a & 0x01;
+    a >>= 1;
+    p.c = carry;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Nop(u16 addr) {
+    Read(addr);
+}
+
+void Cpu::Ora(u16 addr) {
+    a |= Read(addr);
+    p.z = !a;
+    p.n = a & 0x80;
+};
+
+void Cpu::Pha([[maybe_unused]] u16 addr) {
+    Read(pc);
+    Push(a);
+}
+
+void Cpu::Php([[maybe_unused]] u16 addr) {
+    Read(pc);
+    auto p_with_b_with_u = p;
+    p_with_b_with_u.b = true;
+    p_with_b_with_u.u = true;
+    Push(u8(p_with_b_with_u));
+}
+
+void Cpu::Pla([[maybe_unused]] u16 addr) {
+    Read(pc);
+    Peek();
+    a = Pop();
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Plp([[maybe_unused]] u16 addr) {
+    Read(pc);
+    Peek();
+    Status new_p(Pop());
+    new_p.b = p.b;
+    new_p.u = p.u;
+    p = new_p;
+}
+
+void Cpu::Rla(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    bool carry = data & 0x80;
+    data = u8(p.c | data << 1);
+    Write(addr, data);
+    a &= data;
+    p.c = carry;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Rol(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    bool carry = data & 0x80;
+    data = u8(p.c | data << 1);
+    Write(addr, data);
+    p.c = carry;
+    p.z = !data;
+    p.n = data & 0x80;
+}
+
+void Cpu::RolA([[maybe_unused]] u16 addr) {
+    Read(pc);
+    bool carry = a & 0x80;
+    a = u8(p.c | a << 1);
+    p.c = carry;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Ror(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    bool carry = data & 0x01;
+    data = u8(data >> 1 | p.c << 7);
+    Write(addr, data);
+    p.c = carry;
+    p.z = !data;
+    p.n = data & 0x80;
+}
+
+void Cpu::RorA([[maybe_unused]] u16 addr) {
+    Read(pc);
+    bool carry = a & 0x01;
+    a = u8(a >> 1 | p.c << 7);
+    p.c = carry;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Rra(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    bool carry = data & 0x01;
+    data = u8(data >> 1 | p.c << 7);
+    Write(addr, data);
+    p.c = carry;
+    Add(data);
+}
+
+void Cpu::Rti([[maybe_unused]] u16 addr) {
+    Read(pc);
+    Peek();
+    Status new_p(Pop());
+    new_p.b = p.b;
+    new_p.u = p.u;
+    p = new_p;
+    auto pcl = Pop();
+    auto pch = Pop();
+    pc = u16(pcl | pch << 8);
+}
+
+void Cpu::Rts([[maybe_unused]] u16 addr) {
+    Read(pc);
+    Peek();
+    auto pcl = Pop();
+    auto pch = Pop();
+    pc = u16(pcl | pch << 8);
+    Read(pc++);
+}
+
+void Cpu::Sax(u16 addr) {
+    Write(addr, a & x);
+}
+
+void Cpu::Sbc(u16 addr) {
+    auto data = Read(addr);
+    Add(data ^ 0xFF);
+}
+
+void Cpu::Sbx(u16 addr) {
+    auto data = Read(addr);
+    u8 diff;
+    bool overflow = __builtin_sub_overflow(a & x, data, &diff);
+    x = diff;
+    p.c = !overflow;
+    p.z = !x;
+    p.n = x & 0x80;
+}
+
+void Cpu::Sec([[maybe_unused]] u16 addr) {
+    Read(pc);
+    p.c = true;
+}
+
+void Cpu::Sed([[maybe_unused]] u16 addr) {
+    Read(pc);
+    p.d = true;
+}
+
+void Cpu::Sei([[maybe_unused]] u16 addr) {
+    Read(pc);
+    p.i = true;
+}
+
+void Cpu::Sha(u16 addr) {
+    ShInner(addr, a & x);
+}
+
+void Cpu::Shx(u16 addr) {
+    ShInner(addr, x);
+}
+
+void Cpu::Shy(u16 addr) {
+    ShInner(addr, y);
+}
+
+void Cpu::Slo(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    bool carry = data & 0x80;
+    data <<= 1;
+    Write(addr, data);
+    a |= data;
+    p.c = carry;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Sre(u16 addr) {
+    auto data = Read(addr);
+    Write(addr, data);
+    bool carry = data & 0x01;
+    data >>= 1;
+    Write(addr, data);
+    a ^= data;
+    p.c = carry;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Sta(u16 addr) {
+    Write(addr, a);
+}
+
+void Cpu::Stx(u16 addr) {
+    Write(addr, x);
+}
+
+void Cpu::Sty(u16 addr) {
+    Write(addr, y);
+}
+
+void Cpu::Tas(u16 addr) {
+    s = a & x;
+    ShInner(addr, s);
+}
+
+void Cpu::Tax([[maybe_unused]] u16 addr) {
+    Read(pc);
+    x = a;
+    p.z = !x;
+    p.n = x & 0x80;
+}
+
+void Cpu::Tay([[maybe_unused]] u16 addr) {
+    Read(pc);
+    y = a;
+    p.z = !y;
+    p.n = y & 0x80;
+}
+
+void Cpu::Tsx([[maybe_unused]] u16 addr) {
+    Read(pc);
+    x = s;
+    p.z = !x;
+    p.n = x & 0x80;
+}
+
+void Cpu::Txa([[maybe_unused]] u16 addr) {
+    Read(pc);
+    a = x;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Txs([[maybe_unused]] u16 addr) {
+    Read(pc);
+    s = x;
+}
+
+void Cpu::Tya([[maybe_unused]] u16 addr) {
+    Read(pc);
+    a = y;
+    p.z = !a;
+    p.n = a & 0x80;
 }
 
 }
