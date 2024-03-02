@@ -13,4 +13,10 @@ $ cmake -S . -B build --preset=debug
 $ cmake --build build
 ```
 
+## Test
+
+```bash
+$ ctest --test-dir build/tests
+```
+
 [duNES]: https://github.com/zachcmadsen/duNES
