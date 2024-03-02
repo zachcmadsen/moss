@@ -29,9 +29,9 @@ void RunProcessorTest(u16 opc) {
         cpu->P(u8(start["p"].get_int64()));
         for (simdjson::ondemand::array entry : start["ram"].get_array()) {
             auto it = entry.begin();
-            uint16_t addr = u16((*it).get_int64());
+            u16 addr = u16((*it).get_int64());
             ++it;
-            uint8_t data = u8((*it).get_int64());
+            u8 data = u8((*it).get_int64());
             cpu->Write(addr, data);
         }
 
@@ -47,9 +47,9 @@ void RunProcessorTest(u16 opc) {
         ASSERT_TRUE(cpu->P() == end["p"].get_int64());
         for (simdjson::ondemand::array entry : end["ram"].get_array()) {
             auto it = entry.begin();
-            uint16_t addr = u16((*it).get_int64());
+            u16 addr = u16((*it).get_int64());
             ++it;
-            uint8_t data = u8((*it).get_int64());
+            u8 data = u8((*it).get_int64());
             ASSERT_TRUE(cpu->Read(addr) == data);
         }
     }
