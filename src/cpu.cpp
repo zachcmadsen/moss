@@ -15,7 +15,7 @@ void Cpu::Reset() {
     p.i = true;
     auto pcl = Read(0xFFFC);
     auto pch = Read(0xFFFC + 1);
-    pc = static_cast<std::uint16_t>(pcl | pch << 8);
+    pc = u16(pcl | pch << 8);
 }
 
 void Cpu::Step() {
@@ -311,7 +311,7 @@ u16 Cpu::Idx() {
 
 template <bool write> u16 Cpu::Idy() {
     auto ptr = Read(pc++);
-    std::uint8_t low;
+    u8 low;
     page_cross = __builtin_add_overflow(Read(ptr), y, &low);
     auto high = Read(u8(ptr + 1));
     if constexpr (write) {
