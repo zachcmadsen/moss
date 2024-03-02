@@ -11,7 +11,7 @@
 namespace {
 
 void RunProcessorTest(std::uint16_t opc) {
-    auto cpu = std::make_unique<Moss::Cpu>();
+    auto cpu = std::make_unique<moss::Cpu>();
 
     auto json = simdjson::padded_string::load(
         std::format("../../processor_tests/{:02x}.json", opc));

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace Moss {
+namespace moss {
 
 void Cpu::Reset() {
     Read(pc);

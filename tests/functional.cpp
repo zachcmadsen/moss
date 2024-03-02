@@ -9,7 +9,7 @@
 namespace {
 
 TEST(Klaus, Functional) {
-    auto cpu = std::make_unique<Moss::Cpu>();
+    auto cpu = std::make_unique<moss::Cpu>();
     std::ifstream rom{"../../6502_functional_test.bin", std::ios::binary};
     std::uint16_t addr = 0x000A;
     std::for_each(std::istreambuf_iterator<char>{rom},

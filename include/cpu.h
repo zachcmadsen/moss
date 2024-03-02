@@ -5,7 +5,7 @@
 #include <array>
 #include <cstdint>
 
-namespace Moss {
+namespace moss {
 
 class Cpu final {
   public:
