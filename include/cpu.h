@@ -69,13 +69,13 @@ class Cpu final {
 
     struct Status {
         Status() = default;
-        Status(std::uint8_t p)
+        explicit Status(std::uint8_t p)
             : c{(p & 0x01) != 0}, z{(p & 0x02) != 0}, i{(p & 0x04) != 0},
               d{(p & 0x08) != 0}, b{(p & 0x10) != 0}, u{(p & 0x20) != 0},
               v{(p & 0x40) != 0}, n{(p & 0x80) != 0} {
         }
 
-        operator std::uint8_t() const {
+        explicit operator std::uint8_t() const {
             return static_cast<std::uint8_t>(c | (z << 1) | (i << 2) |
                                              (d << 3) | (b << 4) | (u << 5) |
                                              (v << 6) | (n << 7));
@@ -342,7 +342,7 @@ class Cpu final {
         Push(static_cast<std::uint8_t>(pc));
         auto p_with_b = p;
         p_with_b.b = true;
-        Push(p_with_b);
+        Push(u8(p_with_b));
         p.i = true;
         auto pcl = Read(0xFFFE);
         auto pch = Read(0xFFFE + 1);
@@ -546,7 +546,7 @@ class Cpu final {
         auto p_with_b_with_u = p;
         p_with_b_with_u.b = true;
         p_with_b_with_u.u = true;
-        Push(p_with_b_with_u);
+        Push(u8(p_with_b_with_u));
     }
 
     void Pla([[maybe_unused]] std::uint16_t addr) {
@@ -560,7 +560,7 @@ class Cpu final {
     void Plp([[maybe_unused]] std::uint16_t addr) {
         Read(pc);
         Peek();
-        Status new_p = Pop();
+        Status new_p(Pop());
         new_p.b = p.b;
         new_p.u = p.u;
         p = new_p;
@@ -631,7 +631,7 @@ class Cpu final {
     void Rti([[maybe_unused]] std::uint16_t addr) {
         Read(pc);
         Peek();
-        Status new_p = Pop();
+        Status new_p(Pop());
         new_p.b = p.b;
         new_p.u = p.u;
         p = new_p;
@@ -818,11 +818,11 @@ inline void Cpu::S(u8 s) {
 }
 
 inline u8 Cpu::P() const {
-    return p;
+    return u8(p);
 }
 
 inline void Cpu::P(u8 p) {
-    this->p = p;
+    this->p = Status(p);
 }
 
 inline u8 Cpu::Read(u16 addr) const {
