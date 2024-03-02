@@ -103,59 +103,6 @@ class Cpu final {
 
     std::array<u8, AddrSpaceSize> ram{};
 
-    void Add(u8 data) {
-        auto prev_a = a;
-        auto sum = a + data + p.c;
-        a = u8(sum);
-        p.c = sum > 0xFF;
-        p.v = (prev_a ^ a) & (data ^ a) & 0x80;
-        p.z = !a;
-        p.n = a & 0x80;
-    }
-
-    void Branch(bool cond) {
-        auto offset = Read(pc++);
-        if (cond) {
-            Read(pc);
-
-            auto prev_pc = pc;
-            pc += i8(offset);
-
-            if ((prev_pc & 0xFF00) != (pc & 0xFF00)) {
-                Read(u8(prev_pc + offset) | (prev_pc & 0xFF00));
-            }
-        }
-    }
-
-    void Compare(uint8_t left, uint8_t right) {
-        uint8_t diff;
-        bool overflow = __builtin_sub_overflow(left, right, &diff);
-        p.c = !overflow;
-        p.z = !diff;
-        p.n = diff & 0x80;
-    }
-
-    u8 Peek() const {
-        return Read(StackAddr + s);
-    }
-
-    u8 Pop() {
-        ++s;
-        return Read(StackAddr + s);
-    }
-
-    void Push(u8 data) {
-        Write(StackAddr + s, data);
-        --s;
-    }
-
-    void ShInner(u16 addr, u8 reg) {
-        u8 high = addr >> 8;
-        u8 thing = reg & (high + !page_cross);
-        high = page_cross ? thing : high;
-        Write(u16((addr & 0x00FF) | high << 8), thing);
-    }
-
     // Addressing modes
     u16 Abs();
     template <bool write> u16 Abx();
@@ -247,6 +194,17 @@ class Cpu final {
     void Txa(u16 addr);
     void Txs(u16 addr);
     void Tya(u16 addr);
+
+    // Helpers
+    void Add(u8 data);
+    void Branch(bool cond);
+    void Compare(u8 left, u8 right);
+    void ShHelper(u16 addr, u8 val);
+
+    // Stack
+    u8 Peek() const;
+    u8 Pop();
+    void Push(u8 data);
 };
 
 inline u8 Cpu::A() const {
@@ -304,5 +262,17 @@ inline u8 Cpu::Read(u16 addr) const {
 inline void Cpu::Write(u16 addr, u8 data) {
     ram[addr] = data;
 };
+
+inline u8 Cpu::Peek() const {
+    return Read(StackAddr + s);
+}
+
+inline u8 Cpu::Pop() {
+    return Read(StackAddr + ++s);
+}
+
+inline void Cpu::Push(u8 data) {
+    Write(StackAddr + s--, data);
+}
 
 }

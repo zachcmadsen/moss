@@ -789,15 +789,15 @@ void Cpu::Sei([[maybe_unused]] u16 addr) {
 }
 
 void Cpu::Sha(u16 addr) {
-    ShInner(addr, a & x);
+    ShHelper(addr, a & x);
 }
 
 void Cpu::Shx(u16 addr) {
-    ShInner(addr, x);
+    ShHelper(addr, x);
 }
 
 void Cpu::Shy(u16 addr) {
-    ShInner(addr, y);
+    ShHelper(addr, y);
 }
 
 void Cpu::Slo(u16 addr) {
@@ -838,7 +838,7 @@ void Cpu::Sty(u16 addr) {
 
 void Cpu::Tas(u16 addr) {
     s = a & x;
-    ShInner(addr, s);
+    ShHelper(addr, s);
 }
 
 void Cpu::Tax([[maybe_unused]] u16 addr) {
@@ -879,6 +879,46 @@ void Cpu::Tya([[maybe_unused]] u16 addr) {
     a = y;
     p.z = !a;
     p.n = a & 0x80;
+}
+
+void Cpu::Add(u8 data) {
+    auto prev_a = a;
+    auto sum = a + data + p.c;
+    a = u8(sum);
+    p.c = sum > 0xFF;
+    p.v = (prev_a ^ a) & (data ^ a) & 0x80;
+    p.z = !a;
+    p.n = a & 0x80;
+}
+
+void Cpu::Branch(bool cond) {
+    auto offset = Read(pc++);
+    if (cond) {
+        Read(pc);
+
+        auto prev_pc = pc;
+        pc += i8(offset);
+
+        if ((prev_pc & 0xFF00) != (pc & 0xFF00)) {
+            Read(u8(prev_pc + offset) | (prev_pc & 0xFF00));
+        }
+    }
+}
+
+void Cpu::Compare(u8 left, u8 right) {
+    u8 diff;
+    bool overflow = __builtin_sub_overflow(left, right, &diff);
+    p.c = !overflow;
+    p.z = !diff;
+    p.n = diff & 0x80;
+}
+
+// See https://github.com/TomHarte/ProcessorTests/issues/61.
+void Cpu::ShHelper(u16 addr, u8 val) {
+    u8 high = addr >> 8;
+    u8 data = val & (high + !page_cross);
+    high = page_cross ? data : high;
+    Write(u16((addr & 0x00FF) | high << 8), data);
 }
 
 }
