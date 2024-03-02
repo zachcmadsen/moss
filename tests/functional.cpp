@@ -1,10 +1,10 @@
 #include "cpu.h"
 
-#include <gtest/gtest.h>
-
 #include <algorithm>
 #include <fstream>
 #include <memory>
+
+#include <gtest/gtest.h>
 
 namespace {
 

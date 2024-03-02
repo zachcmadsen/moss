@@ -1,9 +1,9 @@
 #pragma once
 
-#include "integer.h"
-
 #include <array>
 #include <cstdint>
+
+#include "integer.h"
 
 namespace moss {
 
@@ -64,9 +64,6 @@ class Cpu final {
     void Step();
 
   private:
-    static constexpr std::size_t ADDR_SPACE_SIZE = 0x10000;
-    static constexpr std::size_t STACK_ADDR = 0x0100;
-
     struct Status {
         Status() = default;
         explicit Status(std::uint8_t p)
@@ -91,6 +88,9 @@ class Cpu final {
         bool n{false};
     };
 
+    static constexpr std::size_t AddrSpaceSize = 0x10000;
+    static constexpr std::size_t StackAddr = 0x0100;
+
     std::uint16_t pc{0};
     std::uint8_t a{0};
     std::uint8_t x{0};
@@ -102,7 +102,7 @@ class Cpu final {
     // getting the effective address.
     bool pageCross;
 
-    std::array<std::uint8_t, ADDR_SPACE_SIZE> ram{};
+    std::array<std::uint8_t, AddrSpaceSize> ram{};
 
     void Add(std::uint8_t data) {
         auto prev_a = a;
@@ -138,16 +138,16 @@ class Cpu final {
     }
 
     std::uint8_t Peek() const {
-        return Read(STACK_ADDR + s);
+        return Read(StackAddr + s);
     }
 
     std::uint8_t Pop() {
         ++s;
-        return Read(STACK_ADDR + s);
+        return Read(StackAddr + s);
     }
 
     void Push(std::uint8_t data) {
-        Write(STACK_ADDR + s, data);
+        Write(StackAddr + s, data);
         --s;
     }
 

@@ -1,12 +1,12 @@
 #include "cpu.h"
 
+#include <memory>
+
 #include <gtest/gtest.h>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weverything"
 #include <simdjson.h>
 #pragma GCC diagnostic pop
-
-#include <memory>
 
 namespace {
 
