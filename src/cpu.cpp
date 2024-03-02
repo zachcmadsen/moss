@@ -1,8 +1,16 @@
 #include "cpu.h"
 
+#include <cassert>
+#include <span>
+
 #include "integer.h"
 
 namespace moss {
+
+void Cpu::Load(std::span<u8> rom, u16 addr) {
+    assert(rom.size() <= (ram.size() - addr));
+    std::copy(rom.begin(), rom.end(), ram.begin() + addr);
+}
 
 void Cpu::Reset() {
     Read(pc);

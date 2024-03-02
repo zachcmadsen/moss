@@ -1,8 +1,8 @@
 #include "cpu.h"
 
-#include <algorithm>
 #include <fstream>
 #include <memory>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -11,26 +11,28 @@
 namespace moss {
 
 TEST(Klaus, Functional) {
+    constexpr u16 ZeroPageAddr = 0x000A;
+    constexpr u16 CodeAddr = 0x0400;
+    constexpr u16 SuccessAddr = 0x336D;
+
+    std::ifstream ifs{"../../6502_functional_test.bin",
+                      std::ios::binary | std::ios::ate};
+    auto file_size = ifs.tellg();
+    std::vector<u8> rom(static_cast<std::size_t>(file_size));
+    ifs.seekg(0, std::ios::beg);
+    ifs.read(reinterpret_cast<char *>(rom.data()), file_size);
+
     auto cpu = std::make_unique<moss::Cpu>();
-    std::ifstream rom{"../../6502_functional_test.bin", std::ios::binary};
-    u16 addr = 0x000A;
-    std::for_each(std::istreambuf_iterator<char>{rom},
-                  std::istreambuf_iterator<char>{},
-                  [&](u8 data) { cpu->Write(addr++, data); });
+    cpu->Load(rom, ZeroPageAddr);
+    cpu->Pc(CodeAddr);
 
-    cpu->Reset();
-    cpu->Pc(0x0400);
-    auto prev_pc = cpu->Pc();
-    while (true) {
-        cpu->Step();
-
-        if (prev_pc == cpu->Pc()) {
-            ASSERT_EQ(cpu->Pc(), 0x336D);
-            break;
-        }
-
+    u16 prev_pc;
+    do {
         prev_pc = cpu->Pc();
-    }
+        cpu->Step();
+    } while (prev_pc != cpu->Pc());
+
+    ASSERT_EQ(cpu->Pc(), SuccessAddr);
 }
 
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <span>
 
 #include "integer.h"
 
@@ -52,7 +53,8 @@ class Cpu final {
     /// TODO
     void Write(u16 addr, u8 data);
 
-    // TODO: Add a loam rom function?
+    /// Loads `rom` into the CPU's memory starting at `addr`.
+    void Load(std::span<u8> rom, u16 addr);
 
     /// Runs the reset sequence. Note, the CPU doesn't execute the sequence the
     /// first time `Step` is called. You have to do it manually by calling
