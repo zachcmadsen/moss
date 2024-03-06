@@ -17,7 +17,7 @@ target_compile_options(simdjson PRIVATE -w)
 
 enable_testing()
 
-add_executable(cpu_test functional.cpp processor_tests.cpp)
+add_executable(cpu_test cpu_test.cpp)
 target_link_libraries(cpu_test cpu GTest::gtest_main simdjson)
 
 include(GoogleTest)
