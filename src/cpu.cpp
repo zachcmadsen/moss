@@ -1,33 +1,23 @@
 #include "cpu.h"
 
-#include <cassert>
 #include <span>
 
 #include "integer.h"
 
 namespace moss {
 
-void Cpu::Load(std::span<u8> rom, u16 addr) {
-    assert(rom.size() <= (ram.size() - addr));
-    std::copy(rom.begin(), rom.end(), ram.begin() + addr);
-}
+bool Cpu::Load(std::span<u8 const> rom, u16 offset) {
+    if (ram.size() - offset < rom.size()) {
+        return false;
+    }
 
-void Cpu::Reset() {
-    Read(pc);
-    Peek();
-    --s;
-    Peek();
-    --s;
-    Peek();
-    --s;
-    p.i = true;
-    auto pcl = Read(ResetVector);
-    auto pch = Read(ResetVector + 1);
-    pc = u16(pcl | pch << 8);
+    std::copy(rom.begin(), rom.end(), ram.begin() + offset);
+
+    return true;
 }
 
 void Cpu::Step() {
-    auto opc = ram[pc++];
+    auto opc = Read(pc++);
     // clang-format off
     switch (opc) {
         case 0x00: Brk(0); break;

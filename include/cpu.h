@@ -7,61 +7,56 @@
 
 namespace moss {
 
+/// A 6502 emulator.
 class Cpu final {
   public:
-    Cpu() = default;
-
-    /// TODO
+    /// Returns the accumulator.
     [[nodiscard]] u8 A() const;
 
-    /// TODO
+    /// Sets the accumulator to `a`.
     void A(u8 a);
 
-    /// TODO
+    /// Returns the X register.
     [[nodiscard]] u8 X() const;
 
-    /// TODO
+    /// Sets the X register to `x`.
     void X(u8 x);
 
-    /// TODO
+    /// Returns the Y register.
     [[nodiscard]] u8 Y() const;
 
-    /// TODO
+    /// Sets the Y register to `y`.
     void Y(u8 y);
 
-    /// Returns the contents of the PC register.
+    /// Returns the program counter.
     [[nodiscard]] u16 Pc() const;
 
-    /// Sets the PC register to `pc`.
+    /// Sets the program counter to `pc`.
     void Pc(u16 pc);
 
-    /// TODO
+    /// Returns the stack pointer.
     [[nodiscard]] u8 S() const;
 
-    /// TODO
+    /// Sets the stack pointer to `s`.
     void S(u8 s);
 
-    /// TODO
+    /// Returns the status register.
     [[nodiscard]] u8 P() const;
 
-    /// TODO
+    /// Sets the status register to `p`.
     void P(u8 p);
 
-    /// TODO
-    u8 Read(u16 addr) const;
+    /// Reads a byte from memory at `addr`.
+    [[nodiscard]] u8 Read(u16 addr) const;
 
-    /// TODO
+    /// Writes `data` to memory at `addr`.
     void Write(u16 addr, u8 data);
 
-    /// Loads `rom` into the CPU's memory starting at `addr`.
-    void Load(std::span<u8> rom, u16 addr);
+    /// Tries to load `rom` into memory at `offset`. Returns true if and only
+    /// if `rom` was loaded.
+    [[nodiscard]] bool Load(std::span<u8 const> rom, u16 offset);
 
-    /// Runs the reset sequence. Note, the CPU doesn't execute the sequence the
-    /// first time `Step` is called. You have to do it manually by calling
-    /// this function.
-    void Reset();
-
-    /// Steps the CPU by one instruction.
+    /// Steps execution by one instruction.
     void Step();
 
   private:
@@ -90,7 +85,6 @@ class Cpu final {
 
     static constexpr std::size_t AddrSpaceSize = 0x10000;
     static constexpr std::size_t StackAddr = 0x0100;
-    static constexpr u16 ResetVector = 0xFFFC;
     static constexpr u16 IrqVector = 0xFFFE;
 
     u16 pc{0};
@@ -104,7 +98,7 @@ class Cpu final {
     // getting the effective address.
     bool page_cross;
 
-    std::array<u8, AddrSpaceSize> ram{};
+    std::array<u8, AddrSpaceSize> ram{0};
 
     // Addressing modes
     u16 Abs();
