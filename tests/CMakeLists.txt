@@ -17,7 +17,9 @@ enable_testing()
 
 add_executable(moss_test cpu_test.cpp)
 target_link_libraries(moss_test moss GTest::gtest_main simdjson)
-target_compile_options(moss_test PRIVATE ${MOSS_CXX_FLAGS_LIST})
+if (MOSS_CXX_FLAGS)
+  target_compile_options(moss_test PRIVATE ${MOSS_CXX_FLAGS_LIST})
+endif()
 
 include(GoogleTest)
 gtest_discover_tests(moss_test)
