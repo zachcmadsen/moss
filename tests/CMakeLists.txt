@@ -12,13 +12,12 @@ FetchContent_Declare(
   GIT_TAG  tags/v3.6.0
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(simdjson)
-# Ignore compiler warnings from simdjson.
-target_compile_options(simdjson PRIVATE -w)
 
 enable_testing()
 
-add_executable(cpu_test cpu_test.cpp)
-target_link_libraries(cpu_test cpu GTest::gtest_main simdjson)
+add_executable(moss_test cpu_test.cpp)
+target_link_libraries(moss_test moss GTest::gtest_main simdjson)
+target_compile_options(moss_test PRIVATE ${MOSS_CXX_FLAGS_LIST})
 
 include(GoogleTest)
-gtest_discover_tests(cpu_test)
+gtest_discover_tests(moss_test)
