@@ -258,7 +258,7 @@ inline u8 Cpu::Read(u16 addr) const {
 
 inline void Cpu::Write(u16 addr, u8 data) {
     ram[addr] = data;
-};
+}
 
 inline u8 Cpu::Peek() const {
     return Read(StackAddr + s);

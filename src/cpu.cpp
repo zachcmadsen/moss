@@ -322,7 +322,7 @@ template <bool write> u16 Cpu::Idy() {
 
 u16 Cpu::Imm() {
     return pc++;
-};
+}
 
 u16 Cpu::Imp() {
     return pc;
@@ -355,7 +355,7 @@ u16 Cpu::Zpy() {
 void Cpu::Adc(u16 addr) {
     auto data = Read(addr);
     Add(data);
-};
+}
 
 void Cpu::Alr(u16 addr) {
     a &= Read(addr);
@@ -530,7 +530,7 @@ void Cpu::Eor(u16 addr) {
     a ^= Read(addr);
     p.z = !a;
     p.n = a & 0x80;
-};
+}
 
 void Cpu::Inc(u16 addr) {
     auto data = Read(addr);
@@ -595,19 +595,19 @@ void Cpu::Lda(u16 addr) {
     a = Read(addr);
     p.z = !a;
     p.n = a & 0x80;
-};
+}
 
 void Cpu::Ldx(u16 addr) {
     x = Read(addr);
     p.z = !x;
     p.n = x & 0x80;
-};
+}
 
 void Cpu::Ldy(u16 addr) {
     y = Read(addr);
     p.z = !y;
     p.n = y & 0x80;
-};
+}
 
 void Cpu::Lsr(u16 addr) {
     auto data = Read(addr);
@@ -637,7 +637,7 @@ void Cpu::Ora(u16 addr) {
     a |= Read(addr);
     p.z = !a;
     p.n = a & 0x80;
-};
+}
 
 void Cpu::Pha([[maybe_unused]] u16 addr) {
     Read(pc);
