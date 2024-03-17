@@ -5,15 +5,12 @@ project(moss)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (MOSS_CXX_FLAGS)
-    # Convert MOSS_CXX_FLAGS to a list to work with target_compile_options.
-    separate_arguments(MOSS_CXX_FLAGS_LIST NATIVE_COMMAND ${MOSS_CXX_FLAGS})
-endif()
-
 add_subdirectory(src)
 
-# Don't include test targets if we're in a subdirectory, i.e., if the libary
-# is used in another project.
+# Only include tests if moss isn't used as a library, i.e., if it's not in a
+# subdirectory.
+# TODO: The executable should be excluded too.
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    enable_testing()
     add_subdirectory(tests)
 endif()
