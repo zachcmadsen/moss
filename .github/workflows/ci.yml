@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodule: true
+          submodules: true
 
       - run: ./vcpkg/bootstrap-vcpkg.sh
 
