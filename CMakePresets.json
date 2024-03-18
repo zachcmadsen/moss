@@ -4,10 +4,10 @@
         {
             "name": "base",
             "hidden": true,
+            "generator": "Ninja",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_TOOLCHAIN_FILE": "vcpkg/scripts/buildsystems/vcpkg.cmake",
                 // TODO: If we want to support MSVC builds, we'll need to split
                 // flags into MOSS_<GNU|MSVC>_CXX_FLAGS.
                 "MOSS_CXX_FLAGS": "-Wall -Wextra -pedantic -Wconversion -Wsign-conversion -Wcast-qual"

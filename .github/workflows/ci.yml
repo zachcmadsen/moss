@@ -13,13 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - run: sudo apt-get install zip unzip tar
-
-      - run: ./vcpkg/bootstrap-vcpkg.sh
-
       - run: cmake --preset clang-release
       - run: cmake --build build
-      - run: ctest --test-dir
+      - run: ctest --test-dir build
