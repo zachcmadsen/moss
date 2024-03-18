@@ -13,6 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: cmake --preset clang-release
+      - run: cmake --preset gcc-release
       - run: cmake --build build
       - run: ctest --test-dir build
