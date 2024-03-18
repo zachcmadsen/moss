@@ -9,7 +9,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/foonathan/clang:16
+      image: ghcr.io/foonathan/gcc:13
 
     steps:
       - uses: actions/checkout@v4
