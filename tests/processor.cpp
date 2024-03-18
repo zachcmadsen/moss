@@ -4,8 +4,8 @@
 #include <doctest/doctest.h>
 #include <simdjson.h>
 
-#include "cpu.h"
-#include "integer.h"
+#include "moss/cpu.h"
+#include "moss/types.h"
 
 using namespace simdjson;
 

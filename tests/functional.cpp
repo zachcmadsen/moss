@@ -6,8 +6,8 @@
 
 #include <doctest/doctest.h>
 
-#include "cpu.h"
-#include "integer.h"
+#include "moss/cpu.h"
+#include "moss/types.h"
 
 namespace moss {
 namespace {

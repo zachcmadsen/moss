@@ -1,9 +1,8 @@
-#include "cpu.h"
-
 #include <algorithm>
 #include <span>
 
-#include "integer.h"
+#include "moss/cpu.h"
+#include "moss/types.h"
 
 namespace moss {
 

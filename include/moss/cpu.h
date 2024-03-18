@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <span>
 
-#include "integer.h"
+#include "moss/types.h"
 
 namespace moss {
 
