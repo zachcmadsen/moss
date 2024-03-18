@@ -16,6 +16,8 @@ jobs:
         with:
           submodules: true
 
+      - run: sudo apt-get install zip unzip tar
+
       - run: ./vcpkg/bootstrap-vcpkg.sh
 
       - run: cmake --preset clang-release
