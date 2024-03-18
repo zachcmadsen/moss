@@ -1,9 +1,11 @@
-#include "cpu.h"
-
 #include <format>
+#include <memory>
 
 #include <doctest/doctest.h>
 #include <simdjson.h>
+
+#include "cpu.h"
+#include "integer.h"
 
 using namespace simdjson;
 
@@ -19,18 +21,18 @@ static void Run(u16 opc) {
 
     for (dom::object test : tests) {
         dom::object start = test["initial"];
-        cpu->A(static_cast<u8>(uint64_t(start["a"])));
-        cpu->X(static_cast<u8>(uint64_t(start["x"])));
-        cpu->Y(static_cast<u8>(uint64_t(start["y"])));
-        cpu->S(static_cast<u8>(uint64_t(start["s"])));
-        cpu->Pc(static_cast<u16>(uint64_t(start["pc"])));
-        cpu->P(static_cast<u8>(uint64_t(start["p"])));
+        cpu->A(static_cast<u8>(u64(start["a"])));
+        cpu->X(static_cast<u8>(u64(start["x"])));
+        cpu->Y(static_cast<u8>(u64(start["y"])));
+        cpu->S(static_cast<u8>(u64(start["s"])));
+        cpu->Pc(static_cast<u16>(u64(start["pc"])));
+        cpu->P(static_cast<u8>(u64(start["p"])));
 
         for (dom::array entry : start["ram"]) {
             auto it = entry.begin();
-            auto addr = uint64_t(*it);
+            auto addr = u64(*it);
             ++it;
-            auto data = uint64_t(*it);
+            auto data = u64(*it);
             cpu->Write(static_cast<u16>(addr), static_cast<u8>(data));
         }
 
@@ -38,17 +40,17 @@ static void Run(u16 opc) {
 
         // TODO: Assert bus activity.
         dom::object end = test["final"];
-        REQUIRE(cpu->A() == uint64_t(end["a"]));
-        REQUIRE(cpu->X() == uint64_t(end["x"]));
-        REQUIRE(cpu->Y() == uint64_t(end["y"]));
-        REQUIRE(cpu->S() == uint64_t(end["s"]));
-        REQUIRE(cpu->Pc() == uint64_t(end["pc"]));
-        REQUIRE(cpu->P() == uint64_t(end["p"]));
+        REQUIRE(cpu->A() == u64(end["a"]));
+        REQUIRE(cpu->X() == u64(end["x"]));
+        REQUIRE(cpu->Y() == u64(end["y"]));
+        REQUIRE(cpu->S() == u64(end["s"]));
+        REQUIRE(cpu->Pc() == u64(end["pc"]));
+        REQUIRE(cpu->P() == u64(end["p"]));
         for (dom::array entry : end["ram"]) {
             auto it = entry.begin();
-            auto addr = uint64_t(*it);
+            auto addr = u64(*it);
             ++it;
-            auto data = uint64_t(*it);
+            auto data = u64(*it);
             REQUIRE(cpu->Read(static_cast<u16>(addr)) == data);
         }
     }

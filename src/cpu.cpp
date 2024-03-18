@@ -1,5 +1,6 @@
 #include "cpu.h"
 
+#include <algorithm>
 #include <span>
 
 #include "integer.h"

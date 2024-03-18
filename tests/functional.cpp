@@ -1,11 +1,13 @@
-#include "cpu.h"
-
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <vector>
 
 #include <doctest/doctest.h>
+
+#include "cpu.h"
+#include "integer.h"
 
 namespace moss {
 namespace {
