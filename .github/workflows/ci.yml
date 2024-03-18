@@ -13,6 +13,8 @@ jobs:
         with:
           submodules: true
 
+      - run: apt-get install ninja-build
+
       - run: ./vcpkg/bootstrap-vcpkg.sh
 
       - run: cmake --preset clang-release
