@@ -20,6 +20,7 @@ jobs:
 
       - name: Install Clang ${{ matrix.compiler.version }}
         if: ${{ matrix.compiler.name == 'clang++' }}
+        # The commands are from https://apt.llvm.org.
         run: | 
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
