@@ -38,7 +38,7 @@
             "name": "gcc",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_CXX_COMPILER": "gcc++"
+                "CMAKE_CXX_COMPILER": "g++"
             }
         },
         {
