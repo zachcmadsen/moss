@@ -8,11 +8,14 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/foonathan/gcc:13
 
     steps:
       - uses: actions/checkout@v4
-      - run: cmake --preset gcc-release
+
+      - run: | 
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 17
+
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-17
       - run: cmake --build build
-      - run: ctest --test-dir build
