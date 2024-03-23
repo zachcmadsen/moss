@@ -1,6 +1,6 @@
-#include <cstddef>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <vector>
 
@@ -18,11 +18,8 @@ TEST_CASE("functional") {
     constexpr u16 SuccessAddr = 0x336D;
 
     std::ifstream ifs("../../roms/6502_functional_test.bin",
-                      std::ios::binary | std::ios::ate);
-    auto file_size = ifs.tellg();
-    std::vector<u8> rom(static_cast<std::size_t>(file_size));
-    ifs.seekg(0, std::ios::beg);
-    ifs.read(reinterpret_cast<char *>(rom.data()), file_size);
+                      std::ios::in | std::ios::binary);
+    std::vector<u8> rom(std::istreambuf_iterator<char>(ifs), {});
 
     auto cpu = std::make_unique<Cpu>();
     REQUIRE(cpu->Load(rom, ZeroPageAddr));
