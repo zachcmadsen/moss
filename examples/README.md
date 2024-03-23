@@ -11,4 +11,10 @@ $ cmake --preset default
 $ cmake --build build
 ```
 
+Build an example without CMake:
+
+```bash
+$ mos-common-clang -o <example> -Os -lexit-loop -linit-stack <example>.c 
+```
+
 <!-- TODO: Add a section about running the images with moss. -->
