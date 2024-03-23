@@ -1,6 +1,6 @@
 include(${PROJECT_SOURCE_DIR}/cmake/moss.cmake)
 
-add_library(moss STATIC cpu.cpp)
+add_library(moss STATIC cpu.cpp moss.cpp)
 target_include_directories(moss PUBLIC ${CMAKE_SOURCE_DIR}/include)
 moss_compile_options(moss)
 
